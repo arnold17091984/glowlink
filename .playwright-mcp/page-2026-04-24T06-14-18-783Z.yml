@@ -1,0 +1,243 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - generic [ref=e3]:
+      - navigation [ref=e5]:
+        - generic [ref=e6]:
+          - generic [ref=e9]:
+            - generic [ref=e10]: Global search
+            - generic [ref=e11]:
+              - img [ref=e13]
+              - searchbox "Global search" [ref=e16]
+          - img [ref=e21] [cursor=pointer]
+          - generic [ref=e22]:
+            - button "Open notifications 0" [ref=e24] [cursor=pointer]:
+              - generic [ref=e25]: Open notifications
+              - img [ref=e26]
+              - generic [ref=e31]: "0"
+            - dialog
+          - button "User menu" [ref=e34] [cursor=pointer]:
+            - img "Avatar of Arnold" [ref=e35]
+      - main [ref=e36]:
+        - generic [ref=e37]:
+          - generic [ref=e38]:
+            - heading "Dashboard" [level=1] [ref=e41]
+            - generic [ref=e44]:
+              - generic [ref=e46]:
+                - generic [ref=e47]:
+                  - generic [ref=e48]:
+                    - generic [ref=e50]: SYSTEM ONLINE
+                    - generic [ref=e51]: // DAY OPS
+                  - generic [ref=e52]: 2026-04-24 · 14:14:18 PST
+                - generic [ref=e53]:
+                  - generic [ref=e54]: OPERATOR // ARNOLD
+                  - heading "Good afternoon, Arnold_" [level=2] [ref=e55]:
+                    - text: Good afternoon, Arnold
+                    - generic [ref=e56]: _
+                  - generic [ref=e57]: LINE engagement console ready for input.
+                - generic [ref=e58]:
+                  - generic [ref=e59]:
+                    - generic [ref=e60]: FRIENDS // TOTAL
+                    - generic [ref=e62]: "0"
+                    - generic [ref=e63]: no new friends MTD
+                  - generic [ref=e64]:
+                    - generic [ref=e65]: BROADCASTS // TODAY
+                    - generic [ref=e67]: "0"
+                    - generic [ref=e68]: scheduled
+                  - generic [ref=e69]:
+                    - generic [ref=e70]: COUPONS // REDEEMED
+                    - generic [ref=e72]: "0"
+                    - generic [ref=e73]: last 24h
+                  - generic [ref=e74]:
+                    - generic [ref=e75]: QUEUE // DEPTH
+                    - generic [ref=e77]: "0"
+                    - generic [ref=e78]: jobs pending
+                - generic [ref=e79]:
+                  - generic [ref=e80]:
+                    - text: LINE API
+                    - generic [ref=e82]: NO TOKEN
+                  - generic [ref=e83]:
+                    - text: MYSQL
+                    - generic [ref=e85]: ONLINE
+                  - generic [ref=e86]:
+                    - text: REDIS
+                    - generic [ref=e88]: ONLINE
+                  - generic [ref=e89]: sess. duvDjGt6
+              - generic [ref=e91]:
+                - generic [ref=e93]:
+                  - generic [ref=e95]: 友だち総数
+                  - generic [ref=e96]: "0"
+                  - generic [ref=e97]:
+                    - generic [ref=e98]: 今月 +0
+                    - img [ref=e99]
+                - generic [ref=e104]:
+                  - generic [ref=e106]: 本日の配信
+                  - generic [ref=e107]: "0"
+                  - generic [ref=e108]:
+                    - generic [ref=e109]: 予定日=本日
+                    - img [ref=e110]
+                - generic [ref=e113]:
+                  - generic [ref=e115]: クーポン利用率
+                  - generic [ref=e116]: 0%
+                  - generic [ref=e117]:
+                    - generic [ref=e118]: 今月 0 / 0 件
+                    - img [ref=e119]
+                - generic [ref=e122]:
+                  - generic [ref=e124]: 紹介成立
+                  - generic [ref=e125]: "0"
+                  - generic [ref=e126]:
+                    - generic [ref=e127]: 今月 紹介経由の新規
+                    - img [ref=e128]
+              - heading "友だち増加推移（過去30日）" [level=3] [ref=e135]
+              - generic [ref=e142]:
+                - generic [ref=e143]:
+                  - generic [ref=e144]:
+                    - heading "今後7日間の配信予定" [level=3] [ref=e147]
+                    - generic [ref=e149]:
+                      - generic [ref=e150]:
+                        - generic [ref=e151]: Search
+                        - generic [ref=e152]:
+                          - img [ref=e154]
+                          - searchbox "Search" [ref=e157]
+                      - button "Toggle columns" [ref=e160] [cursor=pointer]:
+                        - generic [ref=e161]: Toggle columns
+                        - img [ref=e162]
+                  - generic [ref=e166]:
+                    - img [ref=e168]
+                    - heading "今後7日間に配信予定のブロードキャストはありません" [level=4] [ref=e170]
+                  - navigation "Pagination navigation" [ref=e171]:
+                    - generic [ref=e174]:
+                      - generic [ref=e176]: Per page
+                      - combobox "Per page" [ref=e178]:
+                        - option "5"
+                        - option "10" [selected]
+                        - option "25"
+                - generic:
+                  - dialog
+                - generic:
+                  - dialog
+                - generic:
+                  - dialog
+                - generic:
+                  - dialog
+                - generic:
+                  - dialog
+          - generic:
+            - dialog
+          - generic:
+            - dialog
+          - generic:
+            - dialog
+    - complementary [ref=e179]:
+      - link "glowlink // v1.0" [ref=e183] [cursor=pointer]:
+        - /url: http://149.28.19.239/admin
+        - generic [ref=e185]:
+          - generic [ref=e188]: glowlink
+          - generic [ref=e189]: //
+          - generic [ref=e190]: v1.0
+      - navigation [ref=e191]:
+        - list [ref=e192]:
+          - listitem [ref=e193]:
+            - list [ref=e194]:
+              - listitem [ref=e195]:
+                - link "Dashboard" [ref=e196] [cursor=pointer]:
+                  - /url: http://149.28.19.239/admin
+                  - img [ref=e197]
+                  - generic [ref=e199]: Dashboard
+          - listitem [ref=e200]:
+            - generic [ref=e201] [cursor=pointer]:
+              - generic [ref=e202]: Utilities
+              - button "Utilities" [expanded] [ref=e203]:
+                - generic [ref=e204]: Utilities
+                - img [ref=e205]
+            - list [ref=e207]:
+              - listitem [ref=e208]:
+                - link "Activity Logs" [ref=e209] [cursor=pointer]:
+                  - /url: http://149.28.19.239/admin/activity-logs
+                  - generic [ref=e213]: Activity Logs
+              - listitem [ref=e214]:
+                - link "Links" [ref=e215] [cursor=pointer]:
+                  - /url: http://149.28.19.239/admin/links
+                  - generic [ref=e219]: Links
+          - listitem [ref=e220]:
+            - generic [ref=e221] [cursor=pointer]:
+              - generic [ref=e222]: Outreach
+              - button "Outreach" [expanded] [ref=e223]:
+                - generic [ref=e224]: Outreach
+                - img [ref=e225]
+            - list [ref=e227]:
+              - listitem [ref=e228]:
+                - link "Coupons" [ref=e229] [cursor=pointer]:
+                  - /url: http://149.28.19.239/admin/coupons
+                  - generic [ref=e233]: Coupons
+              - listitem [ref=e234]:
+                - link "Referrals" [ref=e235] [cursor=pointer]:
+                  - /url: http://149.28.19.239/admin/referrals
+                  - generic [ref=e239]: Referrals
+          - listitem [ref=e240]:
+            - generic [ref=e241] [cursor=pointer]:
+              - generic [ref=e242]: Friend Management
+              - button "Friend Management" [expanded] [ref=e243]:
+                - generic [ref=e244]: Friend Management
+                - img [ref=e245]
+            - list [ref=e247]:
+              - listitem [ref=e248]:
+                - link "Friends" [ref=e249] [cursor=pointer]:
+                  - /url: http://149.28.19.239/admin/friends
+                  - generic [ref=e253]: Friends
+              - listitem [ref=e254]:
+                - link "Individual Talks" [ref=e255] [cursor=pointer]:
+                  - /url: http://149.28.19.239/admin/individual-talks
+                  - generic [ref=e260]: Individual Talks
+              - listitem [ref=e261]:
+                - link "Talks 0" [ref=e262] [cursor=pointer]:
+                  - /url: http://149.28.19.239/admin/talks
+                  - generic [ref=e266]: Talks
+                  - generic [ref=e270]: "0"
+          - listitem [ref=e271]:
+            - generic [ref=e272] [cursor=pointer]:
+              - generic [ref=e273]: Rich Media
+              - button "Rich Media" [expanded] [ref=e274]:
+                - generic [ref=e275]: Rich Media
+                - img [ref=e276]
+            - list [ref=e278]:
+              - listitem [ref=e279]:
+                - link "Rich Cards" [ref=e280] [cursor=pointer]:
+                  - /url: http://149.28.19.239/admin/rich-cards
+                  - generic [ref=e284]: Rich Cards
+              - listitem [ref=e285]:
+                - link "Rich Menu Sets" [ref=e286] [cursor=pointer]:
+                  - /url: http://149.28.19.239/admin/rich-menu-sets
+                  - generic [ref=e291]: Rich Menu Sets
+              - listitem [ref=e292]:
+                - link "Rich Messages" [ref=e293] [cursor=pointer]:
+                  - /url: http://149.28.19.239/admin/rich-messages
+                  - generic [ref=e298]: Rich Messages
+              - listitem [ref=e299]:
+                - link "Rich Videos" [ref=e300] [cursor=pointer]:
+                  - /url: http://149.28.19.239/admin/rich-videos
+                  - generic [ref=e304]: Rich Videos
+          - listitem [ref=e305]:
+            - generic [ref=e306] [cursor=pointer]:
+              - generic [ref=e307]: Messaging
+              - button "Messaging" [expanded] [ref=e308]:
+                - generic [ref=e309]: Messaging
+                - img [ref=e310]
+            - list [ref=e312]:
+              - listitem [ref=e313]:
+                - link "Messages" [ref=e314] [cursor=pointer]:
+                  - /url: http://149.28.19.239/admin/messages
+                  - generic [ref=e318]: Messages
+              - listitem [ref=e319]:
+                - link "Auto Responses" [ref=e320] [cursor=pointer]:
+                  - /url: http://149.28.19.239/admin/auto-responses
+                  - generic [ref=e325]: Auto Responses
+              - listitem [ref=e326]:
+                - link "Scenario Deliveries" [ref=e327] [cursor=pointer]:
+                  - /url: http://149.28.19.239/admin/scenario-deliveries
+                  - generic [ref=e332]: Scenario Deliveries
+              - listitem [ref=e333]:
+                - link "Broadcasts" [ref=e334] [cursor=pointer]:
+                  - /url: http://149.28.19.239/admin/broadcasts
+                  - generic [ref=e338]: Broadcasts
+  - generic:
+    - status

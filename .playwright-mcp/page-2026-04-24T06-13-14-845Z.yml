@@ -1,0 +1,51 @@
+- generic [ref=e1]:
+  - generic [ref=e3]:
+    - main [ref=e4]:
+      - generic [ref=e5]:
+        - generic [ref=e6]:
+          - generic [ref=e7]:
+            - generic [ref=e9]:
+              - generic [ref=e12]: glowlink
+              - generic [ref=e13]: //
+              - generic [ref=e14]: v1.0
+            - heading "Sign in _" [level=1] [ref=e15]
+            - paragraph [ref=e16]:
+              - text: or
+              - link "sign up for an account" [ref=e17] [cursor=pointer]:
+                - /url: http://149.28.19.239/admin/register
+                - generic [ref=e18]: sign up for an account
+          - generic [ref=e19]:
+            - generic [ref=e20]:
+              - generic [ref=e23]:
+                - generic [ref=e26]:
+                  - text: Email address
+                  - superscript [ref=e27]: "*"
+                - textbox "Email address*" [active] [ref=e31]
+              - generic [ref=e34]:
+                - generic [ref=e35]:
+                  - generic [ref=e37]:
+                    - text: Password
+                    - superscript [ref=e38]: "*"
+                  - link "Forgot password?" [ref=e41] [cursor=pointer]:
+                    - /url: http://149.28.19.239/admin/password-reset/request
+                    - generic [ref=e42]: Forgot password?
+                - generic [ref=e44]:
+                  - textbox "Password*" [ref=e46]
+                  - button "Show password" [ref=e49] [cursor=pointer]:
+                    - generic [ref=e50]: Show password
+                    - img [ref=e51]
+              - generic [ref=e58]:
+                - checkbox "Remember me" [ref=e59]
+                - generic [ref=e60]: Remember me
+            - button "Sign in" [ref=e63] [cursor=pointer]:
+              - generic [ref=e64]: Sign in
+        - generic:
+          - dialog
+        - generic:
+          - dialog
+        - generic:
+          - dialog
+      - text: ● SECURE CONNECTION
+    - text: ACCESS TERMINAL // v1.0.0 // 2026
+  - generic:
+    - status
