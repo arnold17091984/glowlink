@@ -1,0 +1,25 @@
+{
+    "layout": [
+      {
+        "type": "box",
+        "layout": "horizontal",
+        "flex": 1,
+        "offsetBottom": "none",
+        "offsetStart": "none",
+        "position": "absolute",
+        "offsetTop": "none",
+        "offsetEnd": "none",
+        "width": "50%"
+      },
+      {
+        "type": "box",
+        "layout": "horizontal",
+        "width": "50%",
+        "offsetEnd": "0px",
+        "position": "absolute",
+        "flex": 1,
+        "offsetBottom": "0px",
+        "offsetTop": "0px"
+      }
+    ]
+  }

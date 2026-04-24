@@ -1,0 +1,34 @@
+{
+    "layout": [
+      {
+        "type": "box",
+        "layout": "horizontal",
+        "offsetBottom": "none",
+        "offsetStart": "0px",
+        "position": "absolute",
+        "offsetTop": "0px",
+        "offsetEnd": "none",
+        "height": "50%"
+      },
+      {
+        "type": "box",
+        "layout": "horizontal",
+        "position": "absolute",
+        "offsetBottom": "0px",
+        "height": "25%",
+        "offsetStart": "0px",
+        "offsetEnd": "0px",
+        "offsetTop": "50%"
+      },
+      {
+        "type": "box",
+        "layout": "horizontal",
+        "position": "absolute",
+        "height": "25%",
+        "offsetEnd": "0px",
+        "offsetBottom": "0px",
+        "offsetTop": "75%",
+        "offsetStart": "0px"
+      }
+    ]
+  }

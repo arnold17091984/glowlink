@@ -1,0 +1,14 @@
+{
+    "layout": [
+      {
+        "type": "box",
+        "layout": "horizontal",
+        "flex": 1,
+        "offsetBottom": "none",
+        "offsetStart": "none",
+        "position": "absolute",
+        "offsetTop": "none",
+        "offsetEnd": "none"
+      }
+    ]
+  }
