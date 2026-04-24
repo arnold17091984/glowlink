@@ -92,7 +92,11 @@ class AdminPanelProvider extends PanelProvider
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,
                 StartSession::class,
-                AuthenticateSession::class,
+                // AuthenticateSession はパスワードハッシュをセッションに記録し、
+                // ハッシュが変わると自動ログアウトする。Laravel 11 の新しい
+                // session regenerate フローと Livewire の XHR→redirect 連携で
+                // "login 直後の /admin で即 logout" になるケースが発生するので除外。
+                // 単一デバイス制限が必要になったら再有効化する。
                 ShareErrorsFromSession::class,
                 VerifyCsrfToken::class,
                 SubstituteBindings::class,
