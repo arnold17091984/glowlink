@@ -3,6 +3,8 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Filament\Models\Contracts\FilamentUser;
+use Filament\Panel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -43,9 +45,24 @@ use Laravel\Sanctum\HasApiTokens;
  * @mixin \Illuminate\Database\Eloquent\Model
  * @mixin \Eloquent
  */
-class User extends Authenticatable
+class User extends Authenticatable implements FilamentUser
 {
     use HasApiTokens, HasFactory, Notifiable;
+
+    /**
+     * Filament パネルへのアクセス可否。
+     *
+     * Filament 3 は本番 (APP_ENV=production) では User モデルが本メソッドで
+     * true を返さない限り全ての認証済みユーザーに 403 を返す仕様。
+     *
+     * 現段階では「作成済みの全ユーザーが admin に入れる」最小構成。
+     * 将来 Filament Shield / spatie/permission を入れたら
+     * return $this->hasRole('admin') 等に差し替える。
+     */
+    public function canAccessPanel(Panel $panel): bool
+    {
+        return true;
+    }
 
     /**
      * The attributes that are mass assignable.
