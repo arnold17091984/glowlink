@@ -75,6 +75,9 @@ class AdminPanelProvider extends PanelProvider
                 NavigationGroup::make('Utilities')
                     ->label('設定・ユーティリティ')
                     ->icon('heroicon-o-rectangle-group'),
+                NavigationGroup::make('チャネル接続')
+                    ->label('チャネル接続')
+                    ->icon('heroicon-o-link'),
             ])
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')

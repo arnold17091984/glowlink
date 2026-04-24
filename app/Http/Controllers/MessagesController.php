@@ -8,6 +8,7 @@ use App\Actions\LineMessage\GetMessageContentAction;
 use App\Actions\Talk\StoreChatAction;
 use App\Enums\MessagingTypeEnum;
 use App\Models\Friend;
+use App\Models\LineChannel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Spatie\RouteAttributes\Attributes\Middleware;
@@ -24,9 +25,14 @@ class MessagesController extends Controller
     }
 
     #[Post('messages', middleware: ['line.signature', 'throttle:line-webhook'])]
+    #[Post('messages/{channel}', middleware: ['line.signature', 'throttle:line-webhook'])]
     public function __invoke(Request $request)
     {
         $data = $request->json()->all();
+
+        // 複数チャネル対応: middleware が解決した LineChannel を attribute として受け取る
+        /** @var LineChannel|null $channel */
+        $channel = $request->attributes->get('line_channel');
 
         if (! isset($data['events']) || ! is_array($data['events'])) {
             return response()->json(['status' => 'ok']);
