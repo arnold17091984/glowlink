@@ -166,12 +166,15 @@ return [
         App\Providers\AppServiceProvider::class,
         App\Providers\AuthServiceProvider::class,
         // App\Providers\BroadcastServiceProvider::class,
-        Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider::class,
         Spatie\RouteAttributes\RouteAttributesServiceProvider::class,
         App\Providers\EventServiceProvider::class,
         App\Providers\Filament\AdminPanelProvider::class,
         App\Providers\RouteServiceProvider::class,
         App\Domains\LineIntegration\LineIntegrationServiceProvider::class,
+        // IdeHelper は require-dev にあるため class_exists でガードし、prod install --no-dev を壊さない
+        ...(class_exists(\Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider::class)
+            ? [\Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider::class]
+            : []),
     ])->toArray(),
 
     /*
