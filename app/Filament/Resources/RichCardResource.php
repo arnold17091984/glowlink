@@ -23,6 +23,10 @@ class RichCardResource extends Resource
 
     protected static ?string $navigationGroup = 'リッチコンテンツ';
 
+    protected static ?string $navigationLabel = 'リッチカード';
+
+    protected static ?string  = 'リッチカード';
+
     public static function form(Form $form): Form
     {
         return $form

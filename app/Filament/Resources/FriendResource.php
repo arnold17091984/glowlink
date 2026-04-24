@@ -25,6 +25,10 @@ class FriendResource extends Resource
 
     protected static ?string $navigationGroup = '友だち管理';
 
+    protected static ?string $navigationLabel = '友だち';
+
+    protected static ?string  = '友だち';
+
     protected static ?string $recordTitleAttribute = 'name';
 
     public static function getGlobalSearchResultTitle(Model $record): string|Htmlable

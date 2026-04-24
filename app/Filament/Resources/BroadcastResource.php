@@ -31,6 +31,10 @@ class BroadcastResource extends Resource
 
     protected static ?string $navigationGroup = 'メッセージ';
 
+    protected static ?string $navigationLabel = 'ブロードキャスト';
+
+    protected static ?string  = 'ブロードキャスト';
+
     protected static ?int $navigationSort = 4;
 
     public static function form(Form $form): Form

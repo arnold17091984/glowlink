@@ -34,6 +34,10 @@ class ScenarioDeliveryResource extends Resource
 
     protected static ?string $navigationGroup = 'メッセージ';
 
+    protected static ?string $navigationLabel = 'シナリオ配信';
+
+    protected static ?string  = 'シナリオ配信';
+
     protected static ?int $navigationSort = 3;
 
     public static function form(Form $form): Form

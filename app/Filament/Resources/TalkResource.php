@@ -30,6 +30,10 @@ class TalkResource extends Resource
 
     protected static ?string $navigationGroup = '友だち管理';
 
+    protected static ?string $navigationLabel = 'トーク履歴';
+
+    protected static ?string  = 'トーク履歴';
+
     protected static ?string $recordTitleAttribute = 'receiver.name';
 
     public static function getGlobalSearchResultTitle(Model $record): string|Htmlable

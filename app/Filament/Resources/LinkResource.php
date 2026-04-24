@@ -18,6 +18,10 @@ class LinkResource extends Resource
 
     protected static ?string $navigationGroup = '設定・ユーティリティ';
 
+    protected static ?string $navigationLabel = 'リンク';
+
+    protected static ?string  = 'リンク';
+
     public static function form(Form $form): Form
     {
         return $form

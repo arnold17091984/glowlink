@@ -27,6 +27,10 @@ class AutoResponseResource extends Resource
 
     protected static ?string $navigationGroup = 'メッセージ';
 
+    protected static ?string $navigationLabel = '自動返信';
+
+    protected static ?string  = '自動返信';
+
     protected static ?int $navigationSort = 2;
 
     public static function form(Form $form): Form

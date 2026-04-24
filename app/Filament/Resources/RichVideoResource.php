@@ -23,6 +23,10 @@ class RichVideoResource extends Resource
 
     protected static ?string $navigationGroup = 'リッチコンテンツ';
 
+    protected static ?string $navigationLabel = 'リッチビデオ';
+
+    protected static ?string  = 'リッチビデオ';
+
     public static function form(Form $form): Form
     {
         return $form

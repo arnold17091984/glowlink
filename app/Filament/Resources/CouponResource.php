@@ -20,6 +20,10 @@ class CouponResource extends Resource
 
     protected static ?string $navigationGroup = 'キャンペーン';
 
+    protected static ?string $navigationLabel = 'クーポン';
+
+    protected static ?string  = 'クーポン';
+
     public static function form(Form $form): Form
     {
         return $form
