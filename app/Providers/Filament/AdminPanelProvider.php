@@ -33,15 +33,30 @@ class AdminPanelProvider extends PanelProvider
             ->profile()
             ->colors([
                 'danger' => Color::Rose,
-                'gray' => Color::Gray,
-                'info' => Color::Blue,
-                'primary' => '#21D59B',
+                'gray' => Color::Stone,
+                'info' => Color::Sky,
+                'primary' => [
+                    50  => '#EEFCF6',
+                    100 => '#D3F8E8',
+                    200 => '#A4F0D2',
+                    300 => '#6DE4B7',
+                    400 => '#3FDAA4',
+                    500 => '#21D59B',
+                    600 => '#15B584',
+                    700 => '#0E8F6A',
+                    800 => '#0B7055',
+                    900 => '#095C46',
+                    950 => '#04382B',
+                ],
                 'success' => Color::Emerald,
-                'warning' => Color::Orange,
+                'warning' => Color::Amber,
             ])
-            ->brandLogo(asset('https://betrnk-tours-bucket.s3.amazonaws.com/logo/%E3%82%A2%E3%82%BB%E3%83%83%E3%83%88+1.png'))
-            ->darkModeBrandLogo(asset('https://betrnk-tours-bucket.s3.amazonaws.com/logo/%E3%82%A2%E3%82%BB%E3%83%83%E3%83%88+3.png'))
-            ->brandLogoHeight('3rem')
+            ->font('Noto Sans JP')
+            ->viteTheme('resources/css/filament/admin/theme.css')
+            ->brandName('glowlink')
+            ->brandLogo(fn () => view('filament.brand-mark'))
+            ->darkModeBrandLogo(fn () => view('filament.brand-mark'))
+            ->brandLogoHeight('1.75rem')
             ->databaseNotifications()
             ->navigationGroups([
                 NavigationGroup::make('Friend Management')
@@ -67,7 +82,7 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
             ->widgets([
-                Widgets\AccountWidget::class,
+                \App\Filament\Widgets\HeroGreetingWidget::class,
                 \App\Filament\Widgets\FriendStatsOverview::class,
                 \App\Filament\Widgets\FriendGrowthChart::class,
                 \App\Filament\Widgets\UpcomingBroadcastsTable::class,

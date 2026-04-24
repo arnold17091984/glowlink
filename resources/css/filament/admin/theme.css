@@ -1,0 +1,510 @@
+/*
+ * glowlink Filament Admin Theme
+ * --------------------------------------------------------------
+ * コンセプト: "紙と墨と和茶" (Kami to Sumi to Wa-cha)
+ *   - 明朝体の見出しで編集誌的な重み
+ *   - Noto Sans JP の落ち着いた本文
+ *   - 温かみのある紙色 (paper-100) と墨色 (ink-800) の対比
+ *   - 余白は茶室的に潤沢、影は抑制、ブランドグリーンは一筆書きのように差す
+ */
+
+@import '/vendor/filament/filament/resources/css/theme.css';
+
+/* フォントは Fontsource から import (node_modules 経由) */
+@import '@fontsource/noto-sans-jp/400.css';
+@import '@fontsource/noto-sans-jp/500.css';
+@import '@fontsource/noto-sans-jp/700.css';
+@import '@fontsource/noto-sans-jp/900.css';
+@import '@fontsource/shippori-mincho-b1/500.css';
+@import '@fontsource/shippori-mincho-b1/700.css';
+@import '@fontsource/inter/400.css';
+@import '@fontsource/inter/500.css';
+@import '@fontsource/inter/600.css';
+
+@config 'tailwind.config.js';
+
+/* =========================================================
+   GLOBAL TOKENS
+   ========================================================= */
+:root {
+    --glow-paper: #FAF9F6;
+    --glow-paper-raised: #FFFFFF;
+    --glow-ink: #1C1B1A;
+    --glow-ink-soft: #3B3834;
+    --glow-ink-muted: #6B665D;
+    --glow-rule: rgba(28, 27, 26, 0.08);
+    --glow-brand: #21D59B;
+    --glow-brand-ink: #095C46;
+    --glow-brand-wash: rgba(33, 213, 155, 0.08);
+    --glow-shadow-soft: 0 1px 2px rgba(28,27,26,0.04), 0 8px 24px -8px rgba(28,27,26,0.08);
+    --glow-shadow-card: 0 1px 2px rgba(28,27,26,0.04), 0 4px 12px rgba(28,27,26,0.05);
+}
+
+.dark {
+    --glow-paper: #14130F;
+    --glow-paper-raised: #1C1B17;
+    --glow-ink: #F4F2EC;
+    --glow-ink-soft: #C6C1B8;
+    --glow-ink-muted: #9A948A;
+    --glow-rule: rgba(244, 242, 236, 0.08);
+    --glow-shadow-soft: 0 1px 2px rgba(0,0,0,0.3), 0 8px 24px -8px rgba(0,0,0,0.4);
+    --glow-shadow-card: 0 1px 2px rgba(0,0,0,0.3), 0 4px 12px rgba(0,0,0,0.25);
+}
+
+/* =========================================================
+   TYPOGRAPHY
+   ========================================================= */
+html, body, .fi-body {
+    font-family: 'Noto Sans JP', 'Inter', -apple-system, BlinkMacSystemFont,
+                 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, sans-serif;
+    font-feature-settings: "palt" 1, "pkna" 1;
+    background: var(--glow-paper) !important;
+    color: var(--glow-ink);
+    letter-spacing: 0.004em;
+}
+
+/* Mincho display for hero headings */
+.glow-display {
+    font-family: 'Shippori Mincho B1', 'Hiragino Mincho ProN', 'Yu Mincho', serif;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    line-height: 1.15;
+}
+
+.glow-num {
+    font-family: 'Inter', ui-monospace, sans-serif;
+    font-feature-settings: "tnum" 1, "zero" 1;
+    font-variant-numeric: tabular-nums slashed-zero;
+    letter-spacing: -0.01em;
+}
+
+/* Filament のページタイトルを明朝体に置換 */
+.fi-header-heading,
+.fi-section-header-heading,
+.fi-wi-stats-overview-stat-value {
+    font-family: 'Shippori Mincho B1', 'Hiragino Mincho ProN', 'Yu Mincho', serif !important;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+}
+
+.fi-wi-stats-overview-stat-value {
+    font-family: 'Inter', 'Shippori Mincho B1', sans-serif !important;
+    font-feature-settings: "tnum" 1, "zero" 1;
+    font-variant-numeric: tabular-nums;
+    font-weight: 600;
+    letter-spacing: -0.015em;
+}
+
+/* =========================================================
+   SIDEBAR & TOPBAR refinement
+   ========================================================= */
+.fi-sidebar,
+.fi-topbar {
+    background: var(--glow-paper-raised) !important;
+    border-color: var(--glow-rule) !important;
+}
+
+.fi-sidebar-nav-groups {
+    gap: 1.25rem;
+}
+
+.fi-sidebar-group-label {
+    font-family: 'Shippori Mincho B1', serif !important;
+    font-size: 0.75rem !important;
+    font-weight: 500 !important;
+    letter-spacing: 0.1em !important;
+    text-transform: uppercase !important;
+    color: var(--glow-ink-muted) !important;
+    padding: 0 0.75rem 0.5rem !important;
+    border-bottom: 1px solid var(--glow-rule);
+    margin-bottom: 0.5rem;
+}
+
+.fi-sidebar-item-button {
+    border-radius: 0.75rem !important;
+    transition: all 0.2s cubic-bezier(0.25, 0.1, 0.25, 1) !important;
+}
+
+.fi-sidebar-item-button:hover {
+    background: var(--glow-brand-wash) !important;
+    transform: translateX(2px);
+}
+
+.fi-sidebar-item.fi-active .fi-sidebar-item-button {
+    background: var(--glow-brand-wash) !important;
+    color: var(--glow-brand-ink) !important;
+    position: relative;
+}
+
+.fi-sidebar-item.fi-active .fi-sidebar-item-button::before {
+    content: '';
+    position: absolute;
+    left: -8px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 3px;
+    height: 20px;
+    background: var(--glow-brand);
+    border-radius: 0 2px 2px 0;
+}
+
+/* =========================================================
+   MAIN CANVAS (dashboard & pages)
+   ========================================================= */
+.fi-main {
+    background:
+        radial-gradient(ellipse 600px 300px at 10% -10%, rgba(33,213,155,0.05), transparent 60%),
+        radial-gradient(ellipse 800px 400px at 95% 110%, rgba(217,119,6,0.04), transparent 60%),
+        var(--glow-paper) !important;
+}
+
+.fi-header-heading {
+    font-size: 1.875rem !important;
+    letter-spacing: -0.015em;
+}
+
+.fi-header-subheading {
+    color: var(--glow-ink-muted) !important;
+    font-size: 0.95rem !important;
+}
+
+/* =========================================================
+   WIDGETS — 紙のカード
+   ========================================================= */
+.fi-wi-stats-overview-stat {
+    background: var(--glow-paper-raised) !important;
+    border: 1px solid var(--glow-rule) !important;
+    border-radius: 1rem !important;
+    padding: 1.5rem !important;
+    box-shadow: var(--glow-shadow-card) !important;
+    transition: all 0.25s cubic-bezier(0.25, 0.1, 0.25, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.fi-wi-stats-overview-stat::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; height: 3px;
+    background: linear-gradient(90deg, var(--glow-brand) 0%, rgba(33,213,155,0.2) 40%, transparent 100%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.fi-wi-stats-overview-stat:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--glow-shadow-soft) !important;
+    border-color: rgba(33,213,155,0.25) !important;
+}
+
+.fi-wi-stats-overview-stat:hover::before {
+    opacity: 1;
+}
+
+.fi-wi-stats-overview-stat-label {
+    font-size: 0.75rem !important;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--glow-ink-muted) !important;
+    font-weight: 500 !important;
+}
+
+.fi-wi-stats-overview-stat-value {
+    font-size: 2.25rem !important;
+    line-height: 1.1 !important;
+    color: var(--glow-ink) !important;
+    margin-top: 0.25rem;
+}
+
+.fi-wi-chart,
+.fi-wi-table {
+    background: var(--glow-paper-raised) !important;
+    border: 1px solid var(--glow-rule) !important;
+    border-radius: 1rem !important;
+    box-shadow: var(--glow-shadow-card) !important;
+    overflow: hidden;
+}
+
+/* =========================================================
+   TABLES
+   ========================================================= */
+.fi-ta {
+    border-radius: 1rem !important;
+    border: 1px solid var(--glow-rule) !important;
+    box-shadow: var(--glow-shadow-card) !important;
+    background: var(--glow-paper-raised) !important;
+}
+
+.fi-ta-header-cell {
+    background: var(--glow-paper) !important;
+    font-size: 0.7rem !important;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--glow-ink-muted) !important;
+    font-weight: 600 !important;
+}
+
+.fi-ta-row:hover {
+    background: var(--glow-brand-wash) !important;
+}
+
+/* =========================================================
+   BUTTONS
+   ========================================================= */
+.fi-btn[data-color="primary"] {
+    background: linear-gradient(135deg, #21D59B 0%, #15B584 100%) !important;
+    border: 0 !important;
+    box-shadow: 0 1px 2px rgba(9,92,70,0.2), 0 4px 12px -4px rgba(33,213,155,0.35) !important;
+    transition: all 0.2s cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+
+.fi-btn[data-color="primary"]:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(9,92,70,0.25), 0 8px 20px -4px rgba(33,213,155,0.45) !important;
+}
+
+.fi-btn[data-color="primary"]:active {
+    transform: translateY(0);
+}
+
+/* =========================================================
+   LOGIN PAGE TAKEOVER
+   ========================================================= */
+.fi-simple-main-ctn {
+    background: var(--glow-paper) !important;
+    position: relative;
+    overflow: hidden;
+}
+
+.fi-simple-main-ctn::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+        radial-gradient(circle at 15% 20%, rgba(33,213,155,0.12), transparent 40%),
+        radial-gradient(circle at 85% 80%, rgba(217,119,6,0.06), transparent 50%);
+    pointer-events: none;
+    z-index: 0;
+}
+
+.fi-simple-main-ctn::after {
+    content: 'glowlink';
+    position: fixed;
+    bottom: 2rem;
+    left: 2.5rem;
+    font-family: 'Shippori Mincho B1', serif;
+    font-size: 0.875rem;
+    letter-spacing: 0.3em;
+    color: var(--glow-ink-muted);
+    opacity: 0.6;
+    text-transform: uppercase;
+    pointer-events: none;
+    z-index: 1;
+}
+
+/* Login card */
+.fi-simple-main {
+    background: var(--glow-paper-raised) !important;
+    border: 1px solid var(--glow-rule) !important;
+    border-radius: 1.5rem !important;
+    box-shadow: var(--glow-shadow-soft) !important;
+    padding: 3rem 2.5rem !important;
+    position: relative;
+    z-index: 2;
+    max-width: 440px !important;
+}
+
+.fi-simple-main::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 1.5rem; right: 1.5rem;
+    height: 2px;
+    background: linear-gradient(90deg, transparent 0%, var(--glow-brand) 50%, transparent 100%);
+    border-radius: 2px;
+}
+
+.fi-simple-header-heading,
+.fi-simple-main h1 {
+    font-family: 'Shippori Mincho B1', serif !important;
+    font-size: 2rem !important;
+    font-weight: 500 !important;
+    letter-spacing: -0.015em;
+    color: var(--glow-ink) !important;
+}
+
+.fi-simple-header-subheading {
+    color: var(--glow-ink-muted) !important;
+    font-size: 0.925rem !important;
+}
+
+/* =========================================================
+   FORM INPUTS refinement
+   ========================================================= */
+.fi-input-wrp {
+    border-radius: 0.625rem !important;
+    border-color: var(--glow-rule) !important;
+    background: var(--glow-paper) !important;
+    transition: all 0.15s ease;
+}
+
+.fi-input-wrp:focus-within {
+    border-color: var(--glow-brand) !important;
+    box-shadow: 0 0 0 3px rgba(33,213,155,0.18) !important;
+    background: var(--glow-paper-raised) !important;
+}
+
+/* =========================================================
+   BADGES
+   ========================================================= */
+.fi-badge {
+    font-size: 0.72rem !important;
+    letter-spacing: 0.02em !important;
+    padding: 0.2rem 0.6rem !important;
+    border-radius: 999px !important;
+}
+
+/* =========================================================
+   GLOW — hero greeting widget styles
+   ========================================================= */
+.glow-hero {
+    position: relative;
+    padding: 2.5rem 2rem;
+    background:
+        linear-gradient(135deg, rgba(33,213,155,0.05) 0%, rgba(250,249,246,0) 60%),
+        var(--glow-paper-raised);
+    border: 1px solid var(--glow-rule);
+    border-radius: 1.25rem;
+    overflow: hidden;
+    box-shadow: var(--glow-shadow-card);
+}
+
+.glow-hero::before {
+    content: '';
+    position: absolute;
+    top: -60px; right: -60px;
+    width: 240px; height: 240px;
+    background: radial-gradient(circle, rgba(33,213,155,0.15) 0%, transparent 60%);
+    pointer-events: none;
+}
+
+.glow-hero-kanji {
+    position: absolute;
+    top: 50%;
+    right: 2rem;
+    transform: translateY(-50%);
+    font-family: 'Shippori Mincho B1', serif;
+    font-size: 8rem;
+    line-height: 0.9;
+    color: var(--glow-ink);
+    opacity: 0.04;
+    pointer-events: none;
+    user-select: none;
+    letter-spacing: -0.05em;
+}
+
+.glow-hero-eyebrow {
+    font-family: 'Shippori Mincho B1', serif;
+    font-size: 0.85rem;
+    letter-spacing: 0.2em;
+    color: var(--glow-ink-muted);
+    text-transform: uppercase;
+    margin-bottom: 0.75rem;
+}
+
+.glow-hero-greeting {
+    font-family: 'Shippori Mincho B1', serif;
+    font-size: 2.5rem;
+    font-weight: 500;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    color: var(--glow-ink);
+    margin-bottom: 0.5rem;
+}
+
+.glow-hero-greeting .accent {
+    color: var(--glow-brand-ink);
+    position: relative;
+}
+
+.glow-hero-greeting .accent::after {
+    content: '';
+    position: absolute;
+    left: 0; right: 0; bottom: 0.05em;
+    height: 0.25em;
+    background: rgba(33,213,155,0.25);
+    z-index: -1;
+}
+
+.glow-hero-date {
+    font-family: 'Inter', sans-serif;
+    font-feature-settings: "tnum" 1;
+    font-size: 0.925rem;
+    color: var(--glow-ink-muted);
+    letter-spacing: 0.04em;
+}
+
+.glow-hero-meta {
+    display: flex;
+    gap: 2rem;
+    margin-top: 1.75rem;
+    padding-top: 1.75rem;
+    border-top: 1px solid var(--glow-rule);
+}
+
+.glow-hero-meta-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+}
+
+.glow-hero-meta-label {
+    font-size: 0.7rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--glow-ink-muted);
+    font-weight: 500;
+}
+
+.glow-hero-meta-value {
+    font-family: 'Inter', sans-serif;
+    font-feature-settings: "tnum" 1;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--glow-ink);
+    letter-spacing: -0.01em;
+}
+
+.glow-hero-meta-trend {
+    font-size: 0.75rem;
+    color: var(--glow-brand-ink);
+    font-weight: 500;
+    letter-spacing: 0.02em;
+}
+
+/* =========================================================
+   PAGE LOAD CHOREOGRAPHY
+   ========================================================= */
+.fi-wi > * {
+    animation: glow-fade-in 0.55s cubic-bezier(0.25, 0.1, 0.25, 1) both;
+}
+
+.fi-wi > *:nth-child(1) { animation-delay: 0.02s; }
+.fi-wi > *:nth-child(2) { animation-delay: 0.08s; }
+.fi-wi > *:nth-child(3) { animation-delay: 0.14s; }
+.fi-wi > *:nth-child(4) { animation-delay: 0.20s; }
+.fi-wi > *:nth-child(5) { animation-delay: 0.26s; }
+
+@keyframes glow-fade-in {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Scrollbars */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+    background: rgba(28,27,26,0.12);
+    border-radius: 5px;
+    border: 2px solid var(--glow-paper);
+}
+::-webkit-scrollbar-thumb:hover { background: rgba(28,27,26,0.22); }
