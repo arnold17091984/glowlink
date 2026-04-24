@@ -21,7 +21,7 @@ class RichVideoResource extends Resource
 {
     protected static ?string $model = RichVideo::class;
 
-    protected static ?string $navigationGroup = 'Rich Media';
+    protected static ?string $navigationGroup = 'リッチコンテンツ';
 
     public static function form(Form $form): Form
     {

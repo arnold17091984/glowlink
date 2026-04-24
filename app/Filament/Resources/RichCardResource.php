@@ -21,7 +21,7 @@ class RichCardResource extends Resource
 {
     protected static ?string $model = RichCard::class;
 
-    protected static ?string $navigationGroup = 'Rich Media';
+    protected static ?string $navigationGroup = 'リッチコンテンツ';
 
     public static function form(Form $form): Form
     {

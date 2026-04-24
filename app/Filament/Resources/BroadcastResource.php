@@ -29,7 +29,7 @@ class BroadcastResource extends Resource
 {
     protected static ?string $model = Broadcast::class;
 
-    protected static ?string $navigationGroup = 'Messaging';
+    protected static ?string $navigationGroup = 'メッセージ';
 
     protected static ?int $navigationSort = 4;
 

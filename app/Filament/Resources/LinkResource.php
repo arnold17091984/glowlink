@@ -16,7 +16,7 @@ class LinkResource extends Resource
 {
     protected static ?string $model = Link::class;
 
-    protected static ?string $navigationGroup = 'Utilities';
+    protected static ?string $navigationGroup = '設定・ユーティリティ';
 
     public static function form(Form $form): Form
     {

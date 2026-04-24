@@ -18,7 +18,7 @@ class MessageResource extends Resource
 {
     protected static ?string $model = Message::class;
 
-    protected static ?string $navigationGroup = 'Messaging';
+    protected static ?string $navigationGroup = 'メッセージ';
 
     protected static ?int $navigationSort = 1;
 

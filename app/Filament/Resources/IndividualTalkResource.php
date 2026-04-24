@@ -7,7 +7,7 @@ use Filament\Resources\Resource;
 
 class IndividualTalkResource extends Resource
 {
-    protected static ?string $navigationGroup = 'Friend Management';
+    protected static ?string $navigationGroup = '友だち管理';
 
     public static function getRelations(): array
     {

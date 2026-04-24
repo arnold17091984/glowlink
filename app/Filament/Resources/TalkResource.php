@@ -28,7 +28,7 @@ class TalkResource extends Resource
 {
     protected static ?string $model = Talk::class;
 
-    protected static ?string $navigationGroup = 'Friend Management';
+    protected static ?string $navigationGroup = '友だち管理';
 
     protected static ?string $recordTitleAttribute = 'receiver.name';
 

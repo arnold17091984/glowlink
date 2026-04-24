@@ -129,18 +129,25 @@ body::after {
 }
 
 /* ==========================================================================
-   TOPBAR — command bar
+   TOPBAR & SIDEBAR HEADER — 同じ高さで水平 hairline を揃える
    ========================================================================== */
+:root { --gl-header-h: 56px; }
+
 .fi-topbar {
     background: rgba(10, 11, 13, 0.85) !important;
     backdrop-filter: saturate(180%) blur(20px);
     -webkit-backdrop-filter: saturate(180%) blur(20px);
     border-bottom: 1px solid var(--gl-hairline) !important;
-    height: 52px !important;
+    height: var(--gl-header-h) !important;
+    min-height: var(--gl-header-h) !important;
 }
 
+.fi-topbar > nav,
 .fi-topbar nav {
-    height: 52px !important;
+    height: var(--gl-header-h) !important;
+    min-height: var(--gl-header-h) !important;
+    display: flex !important;
+    align-items: center !important;
 }
 
 /* ==========================================================================
@@ -153,8 +160,13 @@ body::after {
 }
 
 .fi-sidebar-header {
+    background: var(--gl-surface) !important;
+    height: var(--gl-header-h) !important;
+    min-height: var(--gl-header-h) !important;
+    padding: 0 1.25rem !important;
+    display: flex !important;
+    align-items: center !important;
     border-bottom: 1px solid var(--gl-hairline) !important;
-    padding: 1rem 1.25rem !important;
 }
 
 .fi-sidebar-group-label {

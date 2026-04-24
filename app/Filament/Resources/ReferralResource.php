@@ -14,7 +14,7 @@ class ReferralResource extends Resource
 {
     protected static ?string $model = Referral::class;
 
-    protected static ?string $navigationGroup = 'Outreach';
+    protected static ?string $navigationGroup = 'キャンペーン';
 
     public static function form(Form $form): Form
     {

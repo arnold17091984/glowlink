@@ -23,7 +23,7 @@ class FriendResource extends Resource
 {
     protected static ?string $model = Friend::class;
 
-    protected static ?string $navigationGroup = 'Friend Management';
+    protected static ?string $navigationGroup = '友だち管理';
 
     protected static ?string $recordTitleAttribute = 'name';
 

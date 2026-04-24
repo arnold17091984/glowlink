@@ -60,20 +60,16 @@ class AdminPanelProvider extends PanelProvider
             ->brandLogoHeight('1.5rem')
             ->databaseNotifications()
             ->navigationGroups([
-                NavigationGroup::make('Friend Management')
-                    ->label('友だち管理'),
-                NavigationGroup::make('Messaging')
-                    ->label('メッセージ'),
-                NavigationGroup::make('Outreach')
-                    ->label('キャンペーン'),
-                NavigationGroup::make('Rich Media')
-                    ->label('リッチコンテンツ'),
-                // Filament はグループとアイテム両方にアイコンを設定すると例外を投げるため、
-                // アイコンはアイテム側に寄せる。グループはラベルのみ。
-                NavigationGroup::make('Utilities')
-                    ->label('設定・ユーティリティ'),
-                NavigationGroup::make('チャネル接続')
-                    ->label('チャネル接続'),
+                // Resource 側の $navigationGroup と完全一致する日本語で make() する。
+                // ->label() による英 → 和 リマップはマッチング基準が make() の値なので、
+                // 結果として Filament が "Friend Management" などの英語グループを
+                // 重複生成し表示がチグハグになる問題があったため、最初から日本語統一。
+                NavigationGroup::make('友だち管理'),
+                NavigationGroup::make('メッセージ'),
+                NavigationGroup::make('キャンペーン'),
+                NavigationGroup::make('リッチコンテンツ'),
+                NavigationGroup::make('設定・ユーティリティ'),
+                NavigationGroup::make('チャネル接続'),
             ])
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')

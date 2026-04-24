@@ -25,7 +25,7 @@ class RichMenuSetResource extends Resource
 {
     protected static ?string $model = RichMenuSet::class;
 
-    protected static ?string $navigationGroup = 'Rich Media';
+    protected static ?string $navigationGroup = 'リッチコンテンツ';
 
     public static function getRecordTitle(?Model $record): string|null|Htmlable
     {

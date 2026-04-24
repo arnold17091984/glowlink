@@ -25,7 +25,7 @@ class AutoResponseResource extends Resource
 {
     protected static ?string $model = AutoResponse::class;
 
-    protected static ?string $navigationGroup = 'Messaging';
+    protected static ?string $navigationGroup = 'メッセージ';
 
     protected static ?int $navigationSort = 2;
 
