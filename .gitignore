@@ -45,3 +45,8 @@ public/hot
 # Logs
 storage/logs/*.log
 
+
+# Playwright MCP debug artifacts
+/.playwright-mcp/
+/0?-*.png
+/1?-*.png
