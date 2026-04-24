@@ -1,510 +1,831 @@
 /*
- * glowlink Filament Admin Theme
- * --------------------------------------------------------------
- * コンセプト: "紙と墨と和茶" (Kami to Sumi to Wa-cha)
- *   - 明朝体の見出しで編集誌的な重み
- *   - Noto Sans JP の落ち着いた本文
- *   - 温かみのある紙色 (paper-100) と墨色 (ink-800) の対比
- *   - 余白は茶室的に潤沢、影は抑制、ブランドグリーンは一筆書きのように差す
+ * glowlink // Mission Control Theme
+ * ==========================================================================
+ * Dark-first command console aesthetic.
+ *   - Deep graphite surfaces with hairline (1px white @ 6%) separation
+ *   - IBM Plex Sans JP for UI, IBM Plex Mono for every number/timestamp/id
+ *   - Brand signal green (#21D59B) reserved for live/active states only
+ *   - Subtle 40px grid texture + scanline overlay on base canvas
+ *   - Numeric metrics in tabular monospace with count-in animation
+ *   - Pulsing status dots, blinking cursors on live fields
+ *   - No decorative ornamentation. Every line serves a function.
+ * ==========================================================================
  */
 
 @import '/vendor/filament/filament/resources/css/theme.css';
 
-/* フォントは Fontsource から import (node_modules 経由) */
-@import '@fontsource/noto-sans-jp/400.css';
-@import '@fontsource/noto-sans-jp/500.css';
-@import '@fontsource/noto-sans-jp/700.css';
-@import '@fontsource/noto-sans-jp/900.css';
-@import '@fontsource/shippori-mincho-b1/500.css';
-@import '@fontsource/shippori-mincho-b1/700.css';
-@import '@fontsource/inter/400.css';
-@import '@fontsource/inter/500.css';
-@import '@fontsource/inter/600.css';
+@import '@fontsource/ibm-plex-sans-jp/400.css';
+@import '@fontsource/ibm-plex-sans-jp/500.css';
+@import '@fontsource/ibm-plex-sans-jp/600.css';
+@import '@fontsource/ibm-plex-sans-jp/700.css';
+@import '@fontsource/ibm-plex-sans/400.css';
+@import '@fontsource/ibm-plex-sans/500.css';
+@import '@fontsource/ibm-plex-sans/600.css';
+@import '@fontsource/ibm-plex-mono/400.css';
+@import '@fontsource/ibm-plex-mono/500.css';
+@import '@fontsource/ibm-plex-mono/600.css';
+@import '@fontsource-variable/geist';
 
 @config 'tailwind.config.js';
 
-/* =========================================================
-   GLOBAL TOKENS
-   ========================================================= */
+/* ==========================================================================
+   ROOT TOKENS — everything routes through CSS vars
+   ========================================================================== */
 :root {
-    --glow-paper: #FAF9F6;
-    --glow-paper-raised: #FFFFFF;
-    --glow-ink: #1C1B1A;
-    --glow-ink-soft: #3B3834;
-    --glow-ink-muted: #6B665D;
-    --glow-rule: rgba(28, 27, 26, 0.08);
-    --glow-brand: #21D59B;
-    --glow-brand-ink: #095C46;
-    --glow-brand-wash: rgba(33, 213, 155, 0.08);
-    --glow-shadow-soft: 0 1px 2px rgba(28,27,26,0.04), 0 8px 24px -8px rgba(28,27,26,0.08);
-    --glow-shadow-card: 0 1px 2px rgba(28,27,26,0.04), 0 4px 12px rgba(28,27,26,0.05);
+    --gl-canvas:   #07080A;
+    --gl-surface:  #0E0F12;
+    --gl-raised:   #14151A;
+    --gl-floating: #1D1F25;
+    --gl-hairline: rgba(255, 255, 255, 0.06);
+    --gl-hairline-strong: rgba(255, 255, 255, 0.10);
+    --gl-hairline-faint: rgba(255, 255, 255, 0.035);
+
+    --gl-text:        #EDEEF0;
+    --gl-text-soft:   #B4B6BB;
+    --gl-text-mute:   #8B8E95;
+    --gl-text-faint:  #52555C;
+    --gl-text-inv:    #07080A;
+
+    --gl-signal:       #21D59B;
+    --gl-signal-dim:   #15B584;
+    --gl-signal-glow:  rgba(33, 213, 155, 0.45);
+    --gl-signal-wash:  rgba(33, 213, 155, 0.08);
+
+    --gl-pulse-red:    #FF3B30;
+    --gl-pulse-amber:  #FFD60A;
+    --gl-pulse-cyan:   #32ADE6;
+
+    --gl-mono: "IBM Plex Mono", "JetBrains Mono", ui-monospace, monospace;
+    --gl-sans: "IBM Plex Sans JP", "IBM Plex Sans", "Geist Variable", -apple-system, sans-serif;
+    --gl-display: "Geist Variable", "IBM Plex Sans", -apple-system, sans-serif;
 }
 
-.dark {
-    --glow-paper: #14130F;
-    --glow-paper-raised: #1C1B17;
-    --glow-ink: #F4F2EC;
-    --glow-ink-soft: #C6C1B8;
-    --glow-ink-muted: #9A948A;
-    --glow-rule: rgba(244, 242, 236, 0.08);
-    --glow-shadow-soft: 0 1px 2px rgba(0,0,0,0.3), 0 8px 24px -8px rgba(0,0,0,0.4);
-    --glow-shadow-card: 0 1px 2px rgba(0,0,0,0.3), 0 4px 12px rgba(0,0,0,0.25);
+/* Light mode fallback — still dark, just slightly lifted surfaces
+   (we ship a single dark aesthetic; light mode re-maps but stays muted) */
+:root:not(.dark) {
+    --gl-canvas:   #0A0B0D;
+    --gl-surface:  #111214;
 }
 
-/* =========================================================
-   TYPOGRAPHY
-   ========================================================= */
+/* ==========================================================================
+   GLOBAL RESET + BASE
+   ========================================================================== */
 html, body, .fi-body {
-    font-family: 'Noto Sans JP', 'Inter', -apple-system, BlinkMacSystemFont,
-                 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, sans-serif;
-    font-feature-settings: "palt" 1, "pkna" 1;
-    background: var(--glow-paper) !important;
-    color: var(--glow-ink);
-    letter-spacing: 0.004em;
+    font-family: var(--gl-sans);
+    background: var(--gl-canvas) !important;
+    color: var(--gl-text);
+    font-feature-settings: "ss01" 1, "cv01" 1, "cv03" 1, "cv11" 1;
+    letter-spacing: -0.003em;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
-/* Mincho display for hero headings */
-.glow-display {
-    font-family: 'Shippori Mincho B1', 'Hiragino Mincho ProN', 'Yu Mincho', serif;
-    font-weight: 500;
-    letter-spacing: -0.01em;
-    line-height: 1.15;
+/* Canvas texture: 40px grid + scanlines, extremely subtle */
+body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    background-image:
+        linear-gradient(rgba(255,255,255,0.018) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.018) 1px, transparent 1px);
+    background-size: 40px 40px;
+    background-position: -1px -1px;
+    mix-blend-mode: screen;
 }
 
-.glow-num {
-    font-family: 'Inter', ui-monospace, sans-serif;
-    font-feature-settings: "tnum" 1, "zero" 1;
+body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    background-image:
+        radial-gradient(ellipse 600px 400px at 0% 0%, rgba(33,213,155,0.04), transparent 60%),
+        radial-gradient(ellipse 800px 500px at 100% 100%, rgba(50,173,230,0.025), transparent 60%);
+}
+
+/* Force all Filament content above the texture */
+.fi-body > * { position: relative; z-index: 1; }
+
+/* Monospace everywhere digits occur */
+.glow-num, .fi-wi-stats-overview-stat-value, .fi-ta-cell[data-column="points"],
+.fi-ta-cell[data-column="referral_count"], .fi-ta-cell[data-column="user_id"] {
+    font-family: var(--gl-mono) !important;
     font-variant-numeric: tabular-nums slashed-zero;
-    letter-spacing: -0.01em;
-}
-
-/* Filament のページタイトルを明朝体に置換 */
-.fi-header-heading,
-.fi-section-header-heading,
-.fi-wi-stats-overview-stat-value {
-    font-family: 'Shippori Mincho B1', 'Hiragino Mincho ProN', 'Yu Mincho', serif !important;
-    font-weight: 500;
-    letter-spacing: -0.01em;
-}
-
-.fi-wi-stats-overview-stat-value {
-    font-family: 'Inter', 'Shippori Mincho B1', sans-serif !important;
     font-feature-settings: "tnum" 1, "zero" 1;
-    font-variant-numeric: tabular-nums;
-    font-weight: 600;
-    letter-spacing: -0.015em;
+    letter-spacing: -0.01em;
 }
 
-/* =========================================================
-   SIDEBAR & TOPBAR refinement
-   ========================================================= */
-.fi-sidebar,
+/* Universal HUD label (uppercase, tracked) */
+.glow-hud-label {
+    font-family: var(--gl-mono);
+    font-size: 0.68rem;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--gl-text-mute);
+}
+
+/* ==========================================================================
+   TOPBAR — command bar
+   ========================================================================== */
 .fi-topbar {
-    background: var(--glow-paper-raised) !important;
-    border-color: var(--glow-rule) !important;
+    background: rgba(10, 11, 13, 0.85) !important;
+    backdrop-filter: saturate(180%) blur(20px);
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+    border-bottom: 1px solid var(--gl-hairline) !important;
+    height: 52px !important;
 }
 
-.fi-sidebar-nav-groups {
-    gap: 1.25rem;
+.fi-topbar nav {
+    height: 52px !important;
+}
+
+/* ==========================================================================
+   SIDEBAR — dense, icon-first
+   ========================================================================== */
+.fi-sidebar {
+    background: var(--gl-surface) !important;
+    border-right: 1px solid var(--gl-hairline) !important;
+    backdrop-filter: blur(8px);
+}
+
+.fi-sidebar-header {
+    border-bottom: 1px solid var(--gl-hairline) !important;
+    padding: 1rem 1.25rem !important;
 }
 
 .fi-sidebar-group-label {
-    font-family: 'Shippori Mincho B1', serif !important;
-    font-size: 0.75rem !important;
+    font-family: var(--gl-mono) !important;
+    font-size: 0.62rem !important;
     font-weight: 500 !important;
-    letter-spacing: 0.1em !important;
+    letter-spacing: 0.18em !important;
     text-transform: uppercase !important;
-    color: var(--glow-ink-muted) !important;
-    padding: 0 0.75rem 0.5rem !important;
-    border-bottom: 1px solid var(--glow-rule);
-    margin-bottom: 0.5rem;
+    color: var(--gl-text-faint) !important;
+    padding: 1rem 1.25rem 0.25rem !important;
+}
+
+.fi-sidebar-nav-groups {
+    gap: 0 !important;
+}
+
+.fi-sidebar-group + .fi-sidebar-group {
+    border-top: 1px solid var(--gl-hairline-faint) !important;
+    margin-top: 0.75rem !important;
+    padding-top: 0.5rem !important;
 }
 
 .fi-sidebar-item-button {
-    border-radius: 0.75rem !important;
-    transition: all 0.2s cubic-bezier(0.25, 0.1, 0.25, 1) !important;
+    border-radius: 4px !important;
+    padding: 0.5rem 0.75rem !important;
+    color: var(--gl-text-soft) !important;
+    font-size: 0.875rem !important;
+    letter-spacing: 0 !important;
+    transition: color 0.15s ease, background 0.15s ease !important;
+    position: relative;
 }
 
 .fi-sidebar-item-button:hover {
-    background: var(--glow-brand-wash) !important;
-    transform: translateX(2px);
+    background: var(--gl-hairline-faint) !important;
+    color: var(--gl-text) !important;
+}
+
+.fi-sidebar-item-button .fi-icon {
+    color: var(--gl-text-mute) !important;
+    width: 1.125rem !important;
+    height: 1.125rem !important;
 }
 
 .fi-sidebar-item.fi-active .fi-sidebar-item-button {
-    background: var(--glow-brand-wash) !important;
-    color: var(--glow-brand-ink) !important;
-    position: relative;
+    background: var(--gl-signal-wash) !important;
+    color: var(--gl-text) !important;
+    box-shadow: inset 2px 0 0 var(--gl-signal);
 }
 
-.fi-sidebar-item.fi-active .fi-sidebar-item-button::before {
-    content: '';
-    position: absolute;
-    left: -8px;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 3px;
-    height: 20px;
-    background: var(--glow-brand);
-    border-radius: 0 2px 2px 0;
+.fi-sidebar-item.fi-active .fi-sidebar-item-button .fi-icon {
+    color: var(--gl-signal) !important;
 }
 
-/* =========================================================
-   MAIN CANVAS (dashboard & pages)
-   ========================================================= */
+/* ==========================================================================
+   MAIN
+   ========================================================================== */
+.fi-main-ctn, .fi-main {
+    background: transparent !important;
+}
+
 .fi-main {
-    background:
-        radial-gradient(ellipse 600px 300px at 10% -10%, rgba(33,213,155,0.05), transparent 60%),
-        radial-gradient(ellipse 800px 400px at 95% 110%, rgba(217,119,6,0.04), transparent 60%),
-        var(--glow-paper) !important;
+    padding: 1.5rem !important;
+}
+
+.fi-header {
+    padding-bottom: 1rem !important;
+    border-bottom: 1px solid var(--gl-hairline);
+    margin-bottom: 1.5rem !important;
 }
 
 .fi-header-heading {
-    font-size: 1.875rem !important;
-    letter-spacing: -0.015em;
+    font-family: var(--gl-display) !important;
+    font-size: 1.35rem !important;
+    font-weight: 500 !important;
+    letter-spacing: -0.015em !important;
+    color: var(--gl-text) !important;
 }
 
 .fi-header-subheading {
-    color: var(--glow-ink-muted) !important;
-    font-size: 0.95rem !important;
+    font-family: var(--gl-mono) !important;
+    font-size: 0.72rem !important;
+    letter-spacing: 0.08em !important;
+    text-transform: uppercase !important;
+    color: var(--gl-text-mute) !important;
 }
 
-/* =========================================================
-   WIDGETS — 紙のカード
-   ========================================================= */
+/* ==========================================================================
+   WIDGETS — data modules
+   ========================================================================== */
+.fi-wi {
+    gap: 0.75rem !important;
+}
+
 .fi-wi-stats-overview-stat {
-    background: var(--glow-paper-raised) !important;
-    border: 1px solid var(--glow-rule) !important;
-    border-radius: 1rem !important;
-    padding: 1.5rem !important;
-    box-shadow: var(--glow-shadow-card) !important;
-    transition: all 0.25s cubic-bezier(0.25, 0.1, 0.25, 1);
+    background: var(--gl-surface) !important;
+    border: 1px solid var(--gl-hairline) !important;
+    border-radius: 4px !important;
+    padding: 1.25rem 1.25rem !important;
+    box-shadow: none !important;
     position: relative;
     overflow: hidden;
+    transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.fi-wi-stats-overview-stat:hover {
+    border-color: var(--gl-hairline-strong) !important;
+    background: var(--gl-raised) !important;
 }
 
 .fi-wi-stats-overview-stat::before {
     content: '';
     position: absolute;
-    top: 0; left: 0; right: 0; height: 3px;
-    background: linear-gradient(90deg, var(--glow-brand) 0%, rgba(33,213,155,0.2) 40%, transparent 100%);
-    opacity: 0;
-    transition: opacity 0.3s ease;
-}
-
-.fi-wi-stats-overview-stat:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--glow-shadow-soft) !important;
-    border-color: rgba(33,213,155,0.25) !important;
-}
-
-.fi-wi-stats-overview-stat:hover::before {
-    opacity: 1;
+    top: 0; left: 0; height: 2px; width: 32px;
+    background: var(--gl-signal);
+    box-shadow: 0 0 12px var(--gl-signal-glow);
 }
 
 .fi-wi-stats-overview-stat-label {
-    font-size: 0.75rem !important;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: var(--glow-ink-muted) !important;
+    font-family: var(--gl-mono) !important;
+    font-size: 0.65rem !important;
     font-weight: 500 !important;
+    letter-spacing: 0.14em !important;
+    text-transform: uppercase !important;
+    color: var(--gl-text-mute) !important;
 }
 
 .fi-wi-stats-overview-stat-value {
+    font-family: var(--gl-mono) !important;
     font-size: 2.25rem !important;
-    line-height: 1.1 !important;
-    color: var(--glow-ink) !important;
-    margin-top: 0.25rem;
+    font-weight: 500 !important;
+    line-height: 1 !important;
+    letter-spacing: -0.02em !important;
+    color: var(--gl-text) !important;
+    margin-top: 0.5rem !important;
+    font-variant-numeric: tabular-nums slashed-zero;
+    font-feature-settings: "tnum" 1, "zero" 1;
 }
 
-.fi-wi-chart,
-.fi-wi-table {
-    background: var(--glow-paper-raised) !important;
-    border: 1px solid var(--glow-rule) !important;
-    border-radius: 1rem !important;
-    box-shadow: var(--glow-shadow-card) !important;
+.fi-wi-stats-overview-stat-description {
+    font-family: var(--gl-mono) !important;
+    font-size: 0.7rem !important;
+    letter-spacing: 0.05em !important;
+    color: var(--gl-text-mute) !important;
+    margin-top: 0.35rem !important;
+}
+
+.fi-wi-chart, .fi-wi-table {
+    background: var(--gl-surface) !important;
+    border: 1px solid var(--gl-hairline) !important;
+    border-radius: 4px !important;
+    box-shadow: none !important;
     overflow: hidden;
 }
 
-/* =========================================================
+.fi-wi-chart-header, .fi-wi-table-header {
+    border-bottom: 1px solid var(--gl-hairline) !important;
+    padding: 1rem 1.25rem !important;
+}
+
+.fi-wi-chart-heading {
+    font-family: var(--gl-mono) !important;
+    font-size: 0.72rem !important;
+    font-weight: 500 !important;
+    letter-spacing: 0.12em !important;
+    text-transform: uppercase !important;
+    color: var(--gl-text-soft) !important;
+}
+
+/* ==========================================================================
    TABLES
-   ========================================================= */
+   ========================================================================== */
 .fi-ta {
-    border-radius: 1rem !important;
-    border: 1px solid var(--glow-rule) !important;
-    box-shadow: var(--glow-shadow-card) !important;
-    background: var(--glow-paper-raised) !important;
+    background: var(--gl-surface) !important;
+    border: 1px solid var(--gl-hairline) !important;
+    border-radius: 4px !important;
+    box-shadow: none !important;
+    overflow: hidden;
+}
+
+.fi-ta-header, .fi-ta-header-ctn {
+    background: var(--gl-canvas) !important;
+    border-bottom: 1px solid var(--gl-hairline) !important;
 }
 
 .fi-ta-header-cell {
-    background: var(--glow-paper) !important;
-    font-size: 0.7rem !important;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    color: var(--glow-ink-muted) !important;
-    font-weight: 600 !important;
+    font-family: var(--gl-mono) !important;
+    font-size: 0.62rem !important;
+    font-weight: 500 !important;
+    letter-spacing: 0.16em !important;
+    text-transform: uppercase !important;
+    color: var(--gl-text-faint) !important;
+    padding: 0.75rem 1rem !important;
+    border-right: 1px solid var(--gl-hairline-faint);
+}
+
+.fi-ta-header-cell:last-child { border-right: 0; }
+
+.fi-ta-row {
+    border-bottom: 1px solid var(--gl-hairline-faint) !important;
+    transition: background 0.1s ease;
 }
 
 .fi-ta-row:hover {
-    background: var(--glow-brand-wash) !important;
+    background: var(--gl-hairline-faint) !important;
 }
 
-/* =========================================================
+.fi-ta-cell {
+    padding: 0.75rem 1rem !important;
+    color: var(--gl-text-soft);
+    font-size: 0.875rem;
+}
+
+/* ==========================================================================
+   FORMS
+   ========================================================================== */
+.fi-input-wrp, .fi-fo-input-wrp {
+    background: var(--gl-canvas) !important;
+    border: 1px solid var(--gl-hairline) !important;
+    border-radius: 4px !important;
+    transition: border-color 0.1s ease, box-shadow 0.1s ease !important;
+}
+
+.fi-input-wrp:focus-within, .fi-fo-input-wrp:focus-within {
+    border-color: var(--gl-signal) !important;
+    box-shadow: 0 0 0 3px var(--gl-signal-wash), 0 0 16px -4px var(--gl-signal-glow) !important;
+    background: var(--gl-surface) !important;
+}
+
+.fi-input {
+    color: var(--gl-text) !important;
+    font-family: var(--gl-sans) !important;
+    caret-color: var(--gl-signal);
+}
+
+.fi-input[type="email"], .fi-input[type="password"], .fi-input[type="text"][name*="code"] {
+    font-family: var(--gl-mono) !important;
+    letter-spacing: 0.01em;
+}
+
+.fi-fo-field-wrp-label {
+    font-family: var(--gl-mono) !important;
+    font-size: 0.68rem !important;
+    font-weight: 500 !important;
+    letter-spacing: 0.14em !important;
+    text-transform: uppercase !important;
+    color: var(--gl-text-soft) !important;
+}
+
+/* ==========================================================================
    BUTTONS
-   ========================================================= */
+   ========================================================================== */
+.fi-btn {
+    border-radius: 4px !important;
+    font-family: var(--gl-mono) !important;
+    font-weight: 500 !important;
+    letter-spacing: 0.08em !important;
+    text-transform: uppercase !important;
+    font-size: 0.78rem !important;
+    transition: all 0.15s ease !important;
+}
+
 .fi-btn[data-color="primary"] {
-    background: linear-gradient(135deg, #21D59B 0%, #15B584 100%) !important;
-    border: 0 !important;
-    box-shadow: 0 1px 2px rgba(9,92,70,0.2), 0 4px 12px -4px rgba(33,213,155,0.35) !important;
-    transition: all 0.2s cubic-bezier(0.25, 0.1, 0.25, 1);
+    background: var(--gl-signal) !important;
+    color: var(--gl-text-inv) !important;
+    border: 1px solid var(--gl-signal) !important;
+    box-shadow: 0 0 0 1px var(--gl-signal), inset 0 1px 0 rgba(255,255,255,0.25) !important;
+    text-shadow: 0 -1px 0 rgba(0,0,0,0.1);
 }
 
 .fi-btn[data-color="primary"]:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 2px 4px rgba(9,92,70,0.25), 0 8px 20px -4px rgba(33,213,155,0.45) !important;
+    background: var(--gl-signal-dim) !important;
+    box-shadow: 0 0 0 1px var(--gl-signal), 0 0 24px -4px var(--gl-signal-glow), inset 0 1px 0 rgba(255,255,255,0.3) !important;
 }
 
 .fi-btn[data-color="primary"]:active {
-    transform: translateY(0);
+    transform: scale(0.98);
 }
 
-/* =========================================================
-   LOGIN PAGE TAKEOVER
-   ========================================================= */
-.fi-simple-main-ctn {
-    background: var(--glow-paper) !important;
+.fi-btn[data-color="gray"], .fi-btn:not([data-color]):not(.fi-btn-solid) {
+    background: transparent !important;
+    color: var(--gl-text-soft) !important;
+    border: 1px solid var(--gl-hairline-strong) !important;
+}
+
+.fi-btn[data-color="gray"]:hover {
+    border-color: var(--gl-text-mute) !important;
+    color: var(--gl-text) !important;
+    background: var(--gl-hairline-faint) !important;
+}
+
+/* ==========================================================================
+   LOGIN PAGE TAKEOVER — mission access terminal
+   ========================================================================== */
+.fi-simple-main-ctn,
+.fi-simple-page {
+    background: var(--gl-canvas) !important;
     position: relative;
     overflow: hidden;
+    min-height: 100vh;
 }
 
 .fi-simple-main-ctn::before {
     content: '';
     position: fixed;
     inset: 0;
-    background-image:
-        radial-gradient(circle at 15% 20%, rgba(33,213,155,0.12), transparent 40%),
-        radial-gradient(circle at 85% 80%, rgba(217,119,6,0.06), transparent 50%);
     pointer-events: none;
+    background:
+        radial-gradient(ellipse 800px 400px at 50% -10%, rgba(33,213,155,0.08), transparent 60%),
+        radial-gradient(circle at 50% 120%, rgba(50,173,230,0.04), transparent 60%);
     z-index: 0;
 }
 
 .fi-simple-main-ctn::after {
-    content: 'glowlink';
+    content: 'ACCESS TERMINAL // v1.0.0 // 2026';
     position: fixed;
-    bottom: 2rem;
-    left: 2.5rem;
-    font-family: 'Shippori Mincho B1', serif;
-    font-size: 0.875rem;
+    bottom: 1.5rem;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: var(--gl-mono);
+    font-size: 0.62rem;
     letter-spacing: 0.3em;
-    color: var(--glow-ink-muted);
-    opacity: 0.6;
-    text-transform: uppercase;
-    pointer-events: none;
+    color: var(--gl-text-faint);
     z-index: 1;
+    pointer-events: none;
 }
 
-/* Login card */
 .fi-simple-main {
-    background: var(--glow-paper-raised) !important;
-    border: 1px solid var(--glow-rule) !important;
-    border-radius: 1.5rem !important;
-    box-shadow: var(--glow-shadow-soft) !important;
-    padding: 3rem 2.5rem !important;
+    background: var(--gl-surface) !important;
+    border: 1px solid var(--gl-hairline-strong) !important;
+    border-radius: 4px !important;
+    box-shadow:
+        0 0 0 1px var(--gl-hairline) inset,
+        0 32px 80px -24px rgba(0, 0, 0, 0.8),
+        0 0 80px -24px var(--gl-signal-glow) !important;
+    padding: 2.5rem 2rem !important;
+    max-width: 420px !important;
+    width: 90% !important;
     position: relative;
     z-index: 2;
-    max-width: 440px !important;
 }
 
 .fi-simple-main::before {
     content: '';
     position: absolute;
-    top: 0; left: 1.5rem; right: 1.5rem;
-    height: 2px;
-    background: linear-gradient(90deg, transparent 0%, var(--glow-brand) 50%, transparent 100%);
-    border-radius: 2px;
+    top: 0; left: 0; right: 0; height: 1px;
+    background: linear-gradient(90deg, transparent 0%, var(--gl-signal) 50%, transparent 100%);
+    opacity: 0.8;
 }
 
+.fi-simple-main::after {
+    content: '● SECURE CONNECTION';
+    position: absolute;
+    top: -1.75rem; left: 0;
+    font-family: var(--gl-mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.2em;
+    color: var(--gl-signal);
+}
+
+/* Login heading */
 .fi-simple-header-heading,
 .fi-simple-main h1 {
-    font-family: 'Shippori Mincho B1', serif !important;
-    font-size: 2rem !important;
+    font-family: var(--gl-display) !important;
+    font-size: 1.25rem !important;
     font-weight: 500 !important;
-    letter-spacing: -0.015em;
-    color: var(--glow-ink) !important;
+    letter-spacing: -0.005em !important;
+    color: var(--gl-text) !important;
+    margin-bottom: 0.35rem !important;
+}
+
+.fi-simple-header-heading::after {
+    content: '_';
+    color: var(--gl-signal);
+    animation: blink 1s steps(2, end) infinite;
+    margin-left: 0.25rem;
 }
 
 .fi-simple-header-subheading {
-    color: var(--glow-ink-muted) !important;
-    font-size: 0.925rem !important;
+    font-family: var(--gl-mono) !important;
+    font-size: 0.7rem !important;
+    letter-spacing: 0.12em !important;
+    text-transform: uppercase !important;
+    color: var(--gl-text-mute) !important;
 }
 
-/* =========================================================
-   FORM INPUTS refinement
-   ========================================================= */
-.fi-input-wrp {
-    border-radius: 0.625rem !important;
-    border-color: var(--glow-rule) !important;
-    background: var(--glow-paper) !important;
-    transition: all 0.15s ease;
-}
-
-.fi-input-wrp:focus-within {
-    border-color: var(--glow-brand) !important;
-    box-shadow: 0 0 0 3px rgba(33,213,155,0.18) !important;
-    background: var(--glow-paper-raised) !important;
-}
-
-/* =========================================================
-   BADGES
-   ========================================================= */
-.fi-badge {
-    font-size: 0.72rem !important;
-    letter-spacing: 0.02em !important;
-    padding: 0.2rem 0.6rem !important;
-    border-radius: 999px !important;
-}
-
-/* =========================================================
-   GLOW — hero greeting widget styles
-   ========================================================= */
+/* ==========================================================================
+   HERO GREETING — mission status display
+   ========================================================================== */
 .glow-hero {
-    position: relative;
-    padding: 2.5rem 2rem;
-    background:
-        linear-gradient(135deg, rgba(33,213,155,0.05) 0%, rgba(250,249,246,0) 60%),
-        var(--glow-paper-raised);
-    border: 1px solid var(--glow-rule);
-    border-radius: 1.25rem;
+    background: var(--gl-surface);
+    border: 1px solid var(--gl-hairline);
+    border-radius: 4px;
     overflow: hidden;
-    box-shadow: var(--glow-shadow-card);
+    position: relative;
+    padding: 0;
 }
 
 .glow-hero::before {
     content: '';
     position: absolute;
-    top: -60px; right: -60px;
-    width: 240px; height: 240px;
-    background: radial-gradient(circle, rgba(33,213,155,0.15) 0%, transparent 60%);
-    pointer-events: none;
+    top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg,
+        transparent 0%,
+        var(--gl-signal) 10%,
+        var(--gl-signal) 30%,
+        transparent 30%,
+        transparent 35%,
+        var(--gl-signal) 35%,
+        var(--gl-signal) 37%,
+        transparent 37%
+    );
+    opacity: 0.6;
 }
 
-.glow-hero-kanji {
-    position: absolute;
-    top: 50%;
-    right: 2rem;
-    transform: translateY(-50%);
-    font-family: 'Shippori Mincho B1', serif;
-    font-size: 8rem;
-    line-height: 0.9;
-    color: var(--glow-ink);
-    opacity: 0.04;
-    pointer-events: none;
-    user-select: none;
-    letter-spacing: -0.05em;
+.glow-hero-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid var(--gl-hairline);
+    background: var(--gl-canvas);
 }
 
-.glow-hero-eyebrow {
-    font-family: 'Shippori Mincho B1', serif;
-    font-size: 0.85rem;
-    letter-spacing: 0.2em;
-    color: var(--glow-ink-muted);
+.glow-hero-status {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: var(--gl-mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.16em;
     text-transform: uppercase;
-    margin-bottom: 0.75rem;
+    color: var(--gl-text-soft);
 }
 
-.glow-hero-greeting {
-    font-family: 'Shippori Mincho B1', serif;
-    font-size: 2.5rem;
-    font-weight: 500;
-    line-height: 1.15;
-    letter-spacing: -0.02em;
-    color: var(--glow-ink);
+.glow-hero-status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--gl-signal);
+    box-shadow: 0 0 12px var(--gl-signal-glow);
+    animation: pulse-signal 1.8s infinite;
+}
+
+.glow-hero-clock {
+    font-family: var(--gl-mono);
+    font-size: 0.78rem;
+    letter-spacing: 0.08em;
+    color: var(--gl-text-mute);
+    font-variant-numeric: tabular-nums;
+}
+
+.glow-hero-body {
+    padding: 1.75rem 1.5rem 1.5rem;
+    position: relative;
+    background-image: linear-gradient(180deg, transparent 0%, rgba(33,213,155,0.018) 100%);
+}
+
+.glow-hero-op {
+    font-family: var(--gl-mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--gl-text-faint);
     margin-bottom: 0.5rem;
 }
 
-.glow-hero-greeting .accent {
-    color: var(--glow-brand-ink);
-    position: relative;
+.glow-hero-greeting {
+    font-family: var(--gl-display);
+    font-size: 1.75rem;
+    font-weight: 500;
+    letter-spacing: -0.015em;
+    line-height: 1.1;
+    color: var(--gl-text);
+    margin-bottom: 0.25rem;
 }
 
-.glow-hero-greeting .accent::after {
-    content: '';
-    position: absolute;
-    left: 0; right: 0; bottom: 0.05em;
-    height: 0.25em;
-    background: rgba(33,213,155,0.25);
-    z-index: -1;
+.glow-hero-greeting .operator {
+    color: var(--gl-signal);
+    font-family: var(--gl-mono);
+    font-size: 1.5rem;
+    letter-spacing: 0;
 }
 
 .glow-hero-date {
-    font-family: 'Inter', sans-serif;
-    font-feature-settings: "tnum" 1;
-    font-size: 0.925rem;
-    color: var(--glow-ink-muted);
-    letter-spacing: 0.04em;
-}
-
-.glow-hero-meta {
-    display: flex;
-    gap: 2rem;
-    margin-top: 1.75rem;
-    padding-top: 1.75rem;
-    border-top: 1px solid var(--glow-rule);
-}
-
-.glow-hero-meta-item {
-    display: flex;
-    flex-direction: column;
-    gap: 0.2rem;
-}
-
-.glow-hero-meta-label {
+    font-family: var(--gl-mono);
     font-size: 0.7rem;
-    letter-spacing: 0.12em;
+    letter-spacing: 0.1em;
+    color: var(--gl-text-mute);
     text-transform: uppercase;
-    color: var(--glow-ink-muted);
+}
+
+.glow-hero-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 0;
+    border-top: 1px solid var(--gl-hairline);
+    margin-top: 1.5rem;
+}
+
+.glow-hero-cell {
+    padding: 1rem 1.25rem;
+    border-right: 1px solid var(--gl-hairline-faint);
+    position: relative;
+    animation: count-in 0.4s both;
+}
+
+.glow-hero-cell:nth-child(1) { animation-delay: 0.05s; }
+.glow-hero-cell:nth-child(2) { animation-delay: 0.1s; }
+.glow-hero-cell:nth-child(3) { animation-delay: 0.15s; }
+.glow-hero-cell:nth-child(4) { animation-delay: 0.2s; }
+
+.glow-hero-cell:last-child { border-right: 0; }
+
+.glow-hero-cell-label {
+    font-family: var(--gl-mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--gl-text-faint);
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+
+.glow-hero-cell-dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--gl-signal);
+    box-shadow: 0 0 6px var(--gl-signal-glow);
+    animation: pulse-signal 2s infinite;
+}
+
+.glow-hero-cell-dot.inactive {
+    background: var(--gl-text-faint);
+    box-shadow: none;
+    animation: none;
+}
+
+.glow-hero-cell-value {
+    font-family: var(--gl-mono);
+    font-size: 1.85rem;
     font-weight: 500;
+    letter-spacing: -0.02em;
+    line-height: 1;
+    color: var(--gl-text);
+    font-variant-numeric: tabular-nums slashed-zero;
 }
 
-.glow-hero-meta-value {
-    font-family: 'Inter', sans-serif;
-    font-feature-settings: "tnum" 1;
-    font-size: 1.25rem;
-    font-weight: 600;
-    color: var(--glow-ink);
-    letter-spacing: -0.01em;
+.glow-hero-cell-unit {
+    font-family: var(--gl-mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.1em;
+    color: var(--gl-text-mute);
+    text-transform: uppercase;
+    margin-top: 0.25rem;
 }
 
-.glow-hero-meta-trend {
-    font-size: 0.75rem;
-    color: var(--glow-brand-ink);
-    font-weight: 500;
-    letter-spacing: 0.02em;
+.glow-hero-cell-trend {
+    font-family: var(--gl-mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.06em;
+    color: var(--gl-signal);
+    margin-top: 0.2rem;
 }
 
-/* =========================================================
+/* ==========================================================================
+   BADGES — status chips
+   ========================================================================== */
+.fi-badge {
+    font-family: var(--gl-mono) !important;
+    font-size: 0.62rem !important;
+    font-weight: 500 !important;
+    letter-spacing: 0.12em !important;
+    text-transform: uppercase !important;
+    padding: 0.15rem 0.5rem !important;
+    border-radius: 2px !important;
+    border: 1px solid transparent;
+}
+
+.fi-badge[data-color="success"] {
+    background: rgba(33,213,155,0.12) !important;
+    color: var(--gl-signal) !important;
+    border-color: rgba(33,213,155,0.3);
+}
+
+.fi-badge[data-color="danger"] {
+    background: rgba(255,59,48,0.12) !important;
+    color: var(--gl-pulse-red) !important;
+    border-color: rgba(255,59,48,0.3);
+}
+
+.fi-badge[data-color="warning"] {
+    background: rgba(255,214,10,0.12) !important;
+    color: var(--gl-pulse-amber) !important;
+    border-color: rgba(255,214,10,0.3);
+}
+
+/* ==========================================================================
+   MODALS / DROPDOWNS
+   ========================================================================== */
+.fi-modal-window,
+.fi-dropdown-panel {
+    background: var(--gl-floating) !important;
+    border: 1px solid var(--gl-hairline-strong) !important;
+    border-radius: 4px !important;
+    box-shadow:
+        0 0 0 1px var(--gl-hairline) inset,
+        0 24px 60px -12px rgba(0,0,0,0.8) !important;
+}
+
+/* ==========================================================================
    PAGE LOAD CHOREOGRAPHY
-   ========================================================= */
+   ========================================================================== */
 .fi-wi > * {
-    animation: glow-fade-in 0.55s cubic-bezier(0.25, 0.1, 0.25, 1) both;
+    animation: fade-in-up 0.35s cubic-bezier(0.2, 0, 0, 1) both;
 }
 
 .fi-wi > *:nth-child(1) { animation-delay: 0.02s; }
-.fi-wi > *:nth-child(2) { animation-delay: 0.08s; }
-.fi-wi > *:nth-child(3) { animation-delay: 0.14s; }
-.fi-wi > *:nth-child(4) { animation-delay: 0.20s; }
-.fi-wi > *:nth-child(5) { animation-delay: 0.26s; }
+.fi-wi > *:nth-child(2) { animation-delay: 0.06s; }
+.fi-wi > *:nth-child(3) { animation-delay: 0.10s; }
+.fi-wi > *:nth-child(4) { animation-delay: 0.14s; }
+.fi-wi > *:nth-child(5) { animation-delay: 0.18s; }
+.fi-wi > *:nth-child(6) { animation-delay: 0.22s; }
 
-@keyframes glow-fade-in {
-    from { opacity: 0; transform: translateY(10px); }
-    to   { opacity: 1; transform: translateY(0); }
-}
-
-/* Scrollbars */
-::-webkit-scrollbar { width: 10px; height: 10px; }
+/* Scrollbars — thin and subtle */
+::-webkit-scrollbar { width: 8px; height: 8px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb {
-    background: rgba(28,27,26,0.12);
-    border-radius: 5px;
-    border: 2px solid var(--glow-paper);
+    background: var(--gl-hairline-strong);
+    border-radius: 0;
+    border: 2px solid var(--gl-canvas);
 }
-::-webkit-scrollbar-thumb:hover { background: rgba(28,27,26,0.22); }
+::-webkit-scrollbar-thumb:hover { background: var(--gl-text-faint); }
+
+/* Selection */
+::selection {
+    background: var(--gl-signal);
+    color: var(--gl-text-inv);
+}
+
+/* Focus */
+:focus-visible {
+    outline: 1px solid var(--gl-signal) !important;
+    outline-offset: 2px !important;
+}
+
+/* ==========================================================================
+   UTILITY: Blink cursor & pulse dot (for manual use in views)
+   ========================================================================== */
+.glow-blink::after {
+    content: '_';
+    color: var(--gl-signal);
+    animation: blink 1s steps(2, end) infinite;
+    margin-left: 0.1em;
+}
+
+.glow-dot {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--gl-signal);
+    box-shadow: 0 0 8px var(--gl-signal-glow);
+    animation: pulse-signal 1.8s infinite;
+    vertical-align: middle;
+}
+
+.glow-dot.dim {
+    background: var(--gl-text-faint);
+    box-shadow: none;
+    animation: none;
+}

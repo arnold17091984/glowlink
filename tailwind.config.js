@@ -1,17 +1,18 @@
 import preset from './vendor/filament/support/tailwind.config.preset'
 
 /**
- * glowlink design system tokens — "紙と墨と和茶"
+ * glowlink // Mission Control design tokens
  *
- * - brand:   LINE inspired green (existing #21D59B) extended to a full 50-950 scale
- * - ink:     warm near-black, slight charcoal hue
- * - paper:   cream whites, reduce eye fatigue on long admin sessions
- * - sun:     warm amber for warnings / seasonal accents
- * - coral:   muted red, Japanese 朱 inspired
- * - surface: container backgrounds with warmer undertone than pure grey
+ * Dark-first command center aesthetic.
+ *   - carbon: deep graphite surfaces (base, elevated, floating)
+ *   - rule:   hairline borders (1px white at low opacity)
+ *   - signal: brand green reserved for live/active states only
+ *   - pulse:  high-contrast alert / warning
+ *   - data:   muted tones for secondary text / grid rules
  */
 export default {
     presets: [preset],
+    darkMode: 'class',
     content: [
         './app/Filament/**/*.php',
         './resources/views/**/*.blade.php',
@@ -21,7 +22,36 @@ export default {
     theme: {
         extend: {
             colors: {
-                brand: {
+                /* Surfaces — "carbon" inspired by spacecraft interiors */
+                carbon: {
+                    950: '#07080A',
+                    900: '#0A0B0D',
+                    850: '#0E0F12',
+                    800: '#111214',
+                    750: '#14151A',
+                    700: '#17181D',
+                    600: '#1D1F25',
+                    500: '#24262D',
+                    400: '#2E3038',
+                    300: '#3A3D46',
+                    200: '#51555F',
+                    100: '#7A7E89',
+                    50:  '#A8ACB4',
+                },
+                /* Foreground — neutral ink for dark surfaces */
+                ink: {
+                    950: '#FAFAFB',
+                    900: '#EDEEF0',
+                    800: '#D4D6D9',
+                    700: '#B4B6BB',
+                    600: '#8B8E95',
+                    500: '#6C6F76',
+                    400: '#52555C',
+                    300: '#3A3D44',
+                    200: '#262830',
+                },
+                /* Brand signal — used sparingly for live/active only */
+                signal: {
                     50:  '#EEFCF6',
                     100: '#D3F8E8',
                     200: '#A4F0D2',
@@ -32,90 +62,100 @@ export default {
                     700: '#0E8F6A',
                     800: '#0B7055',
                     900: '#095C46',
-                    950: '#04382B',
+                    glow: 'rgba(33, 213, 155, 0.45)',
                 },
-                ink: {
-                    50:  '#F4F3F1',
-                    100: '#E3E1DC',
-                    200: '#C6C1B8',
-                    300: '#9A948A',
-                    400: '#6B665D',
-                    500: '#3B3834',
-                    600: '#2A2826',
-                    700: '#201F1D',
-                    800: '#1C1B1A',
-                    900: '#141312',
-                    950: '#0A0A09',
+                pulse: {
+                    red:    '#FF3B30',
+                    amber:  '#FFD60A',
+                    cyan:   '#32ADE6',
+                    violet: '#BF5AF2',
                 },
-                paper: {
-                    50:  '#FCFBF8',
-                    100: '#FAF9F6',
-                    200: '#F4F2EC',
-                    300: '#EBE7DD',
-                    400: '#DDD7C9',
-                },
-                sun:   '#D97706',
-                coral: '#C2410C',
-                /* Chat bubble tokens (replaces messages.blade inline styles) */
-                'chat-incoming': '#DCF8C6',
-                'chat-outgoing': '#CFE7FF',
+                /* Chat tokens (backward compat) */
+                'chat-incoming': '#1C2B1C',
+                'chat-outgoing': '#0F2236',
             },
             fontFamily: {
                 sans: [
-                    '"Noto Sans JP"',
-                    '"Inter"',
+                    '"IBM Plex Sans JP"',
+                    '"IBM Plex Sans"',
+                    '"Geist Variable"',
                     '-apple-system',
                     'BlinkMacSystemFont',
-                    '"Hiragino Kaku Gothic ProN"',
-                    '"Hiragino Sans"',
-                    'Meiryo',
                     'sans-serif',
                 ],
                 display: [
-                    '"Shippori Mincho B1"',
-                    '"Hiragino Mincho ProN"',
-                    '"Yu Mincho"',
-                    'YuMincho',
-                    'serif',
+                    '"Geist Variable"',
+                    '"IBM Plex Sans"',
+                    '-apple-system',
+                    'sans-serif',
                 ],
                 mono: [
-                    '"Geist Mono"',
+                    '"IBM Plex Mono"',
+                    '"JetBrains Mono"',
                     'ui-monospace',
                     'SFMono-Regular',
                     'monospace',
                 ],
             },
             fontSize: {
-                'display-lg': ['3.5rem', { lineHeight: '1.05', letterSpacing: '-0.02em', fontWeight: '500' }],
-                'display':    ['2.5rem', { lineHeight: '1.1',  letterSpacing: '-0.015em', fontWeight: '500' }],
-                'hero':       ['1.875rem', { lineHeight: '1.25', letterSpacing: '-0.01em', fontWeight: '600' }],
+                'hud-xs':  ['0.65rem',  { lineHeight: '1',    letterSpacing: '0.14em', fontWeight: '500' }],
+                'hud-sm':  ['0.7rem',   { lineHeight: '1',    letterSpacing: '0.12em', fontWeight: '500' }],
+                'hud':     ['0.8rem',   { lineHeight: '1.1',  letterSpacing: '0.1em',  fontWeight: '500' }],
+                'metric':  ['2.25rem',  { lineHeight: '1',    letterSpacing: '-0.02em', fontWeight: '500' }],
+                'metric-lg': ['3.5rem', { lineHeight: '0.95', letterSpacing: '-0.035em', fontWeight: '500' }],
             },
             boxShadow: {
-                'paper':    '0 1px 2px rgba(28,27,26,0.04), 0 1px 3px rgba(28,27,26,0.06)',
-                'card':     '0 1px 2px rgba(28,27,26,0.05), 0 4px 12px rgba(28,27,26,0.04)',
-                'elevated': '0 2px 4px rgba(28,27,26,0.06), 0 12px 24px -8px rgba(28,27,26,0.08)',
-                'ring-brand': '0 0 0 3px rgba(33,213,155,0.20)',
+                'hairline':    'inset 0 0 0 1px rgba(255,255,255,0.06)',
+                'hairline-md': 'inset 0 0 0 1px rgba(255,255,255,0.09)',
+                'glow-signal': '0 0 0 1px rgba(33,213,155,0.35), 0 0 24px -4px rgba(33,213,155,0.45)',
+                'glow-pulse':  '0 0 18px 0 rgba(255, 59, 48, 0.35)',
+                'elevated':    '0 1px 0 rgba(255,255,255,0.04) inset, 0 0 0 1px rgba(255,255,255,0.06), 0 12px 40px -12px rgba(0,0,0,0.6)',
             },
             borderRadius: {
-                'xl2': '1rem',
-                'xl3': '1.25rem',
+                'none': '0',
+                'xs':   '2px',
+                'sm':   '3px',
+                'DEFAULT': '4px',
+                'md':   '6px',
+                'lg':   '8px',
+                'xl':   '10px',
             },
             backgroundImage: {
-                'grain': "url(\"data:image/svg+xml;utf8,<svg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.06 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>\")",
+                'grid': "linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px)",
+                'scan': "repeating-linear-gradient(0deg, rgba(255,255,255,0.015) 0 1px, transparent 1px 4px)",
+                'hud-gradient': "linear-gradient(135deg, rgba(33,213,155,0.06) 0%, transparent 50%)",
+            },
+            backgroundSize: {
+                'grid': '40px 40px',
             },
             keyframes: {
+                'pulse-signal': {
+                    '0%, 100%': { opacity: '1',   transform: 'scale(1)' },
+                    '50%':      { opacity: '0.55', transform: 'scale(0.9)' },
+                },
+                'blink': {
+                    '0%, 45%': { opacity: '1' },
+                    '55%, 100%': { opacity: '0' },
+                },
                 'fade-in-up': {
-                    '0%':   { opacity: '0', transform: 'translateY(12px)' },
+                    '0%':   { opacity: '0', transform: 'translateY(8px)' },
                     '100%': { opacity: '1', transform: 'translateY(0)' },
                 },
-                'reveal': {
-                    '0%':   { opacity: '0' },
-                    '100%': { opacity: '1' },
+                'count-in': {
+                    '0%':   { opacity: '0',  transform: 'translateY(4px)' },
+                    '100%': { opacity: '1',  transform: 'translateY(0)' },
+                },
+                'scan-line': {
+                    '0%':   { transform: 'translateY(-100%)' },
+                    '100%': { transform: 'translateY(100%)' },
                 },
             },
             animation: {
-                'fade-in-up': 'fade-in-up 0.5s cubic-bezier(0.25, 0.1, 0.25, 1) both',
-                'reveal':     'reveal 0.8s ease-out both',
+                'pulse-signal': 'pulse-signal 1.8s cubic-bezier(0.4,0,0.6,1) infinite',
+                'blink':        'blink 1s steps(2, end) infinite',
+                'fade-in-up':   'fade-in-up 0.4s cubic-bezier(0.2, 0, 0, 1) both',
+                'count-in':     'count-in 0.5s cubic-bezier(0.2, 0, 0, 1) both',
+                'scan-line':    'scan-line 8s linear infinite',
             },
         },
     },

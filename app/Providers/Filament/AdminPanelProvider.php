@@ -2,6 +2,7 @@
 
 namespace App\Providers\Filament;
 
+use Filament\Enums\ThemeMode;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
@@ -51,12 +52,13 @@ class AdminPanelProvider extends PanelProvider
                 'success' => Color::Emerald,
                 'warning' => Color::Amber,
             ])
-            ->font('Noto Sans JP')
+            ->font('IBM Plex Sans JP')
             ->viteTheme('resources/css/filament/admin/theme.css')
+            ->defaultThemeMode(ThemeMode::Dark)
             ->brandName('glowlink')
             ->brandLogo(fn () => view('filament.brand-mark'))
             ->darkModeBrandLogo(fn () => view('filament.brand-mark'))
-            ->brandLogoHeight('1.75rem')
+            ->brandLogoHeight('1.5rem')
             ->databaseNotifications()
             ->navigationGroups([
                 NavigationGroup::make('Friend Management')

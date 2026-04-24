@@ -6,9 +6,10 @@
         "build": "vite build"
     },
     "devDependencies": {
-        "@fontsource/inter": "^5.1.0",
-        "@fontsource/noto-sans-jp": "^5.1.0",
-        "@fontsource/shippori-mincho-b1": "^5.1.0",
+        "@fontsource/ibm-plex-mono": "^5.1.0",
+        "@fontsource/ibm-plex-sans": "^5.1.0",
+        "@fontsource/ibm-plex-sans-jp": "^5.1.0",
+        "@fontsource-variable/geist": "^5.1.0",
         "@tailwindcss/forms": "^0.5.2",
         "@tailwindcss/typography": "^0.5.4",
         "autoprefixer": "^10.4.7",
