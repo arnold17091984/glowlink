@@ -405,6 +405,7 @@ body::after {
 
 /* ==========================================================================
    BUTTONS
+   Filament 3 emits both fi-btn-color-{name} and fi-color-custom classes.
    ========================================================================== */
 .fi-btn {
     border-radius: 4px !important;
@@ -416,29 +417,46 @@ body::after {
     transition: all 0.15s ease !important;
 }
 
+/* Primary — solid signal green */
+.fi-btn.fi-btn-color-primary,
+.fi-btn.fi-color-primary,
+button.fi-btn[type="submit"],
 .fi-btn[data-color="primary"] {
     background: var(--gl-signal) !important;
+    background-image: linear-gradient(180deg, rgba(255,255,255,0.08) 0%, transparent 50%) !important;
     color: var(--gl-text-inv) !important;
     border: 1px solid var(--gl-signal) !important;
-    box-shadow: 0 0 0 1px var(--gl-signal), inset 0 1px 0 rgba(255,255,255,0.25) !important;
-    text-shadow: 0 -1px 0 rgba(0,0,0,0.1);
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.25),
+        0 0 0 1px var(--gl-signal),
+        0 1px 2px rgba(0,0,0,0.25) !important;
+    text-shadow: 0 -1px 0 rgba(0,0,0,0.12);
 }
 
-.fi-btn[data-color="primary"]:hover {
+.fi-btn.fi-btn-color-primary:hover,
+.fi-btn.fi-color-primary:hover,
+button.fi-btn[type="submit"]:hover {
     background: var(--gl-signal-dim) !important;
-    box-shadow: 0 0 0 1px var(--gl-signal), 0 0 24px -4px var(--gl-signal-glow), inset 0 1px 0 rgba(255,255,255,0.3) !important;
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.3),
+        0 0 0 1px var(--gl-signal),
+        0 0 24px -4px var(--gl-signal-glow) !important;
 }
 
-.fi-btn[data-color="primary"]:active {
+.fi-btn.fi-btn-color-primary:active,
+.fi-btn.fi-color-primary:active {
     transform: scale(0.98);
 }
 
-.fi-btn[data-color="gray"], .fi-btn:not([data-color]):not(.fi-btn-solid) {
+/* Gray / secondary — hairline outline */
+.fi-btn.fi-btn-color-gray,
+.fi-btn[data-color="gray"] {
     background: transparent !important;
     color: var(--gl-text-soft) !important;
     border: 1px solid var(--gl-hairline-strong) !important;
 }
 
+.fi-btn.fi-btn-color-gray:hover,
 .fi-btn[data-color="gray"]:hover {
     border-color: var(--gl-text-mute) !important;
     color: var(--gl-text) !important;
