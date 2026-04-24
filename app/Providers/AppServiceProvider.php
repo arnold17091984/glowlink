@@ -5,6 +5,7 @@ namespace App\Providers;
 use BezhanSalleh\FilamentLanguageSwitch\LanguageSwitch;
 use Filament\Tables\Columns\Column;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -22,6 +23,12 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // 本番 (APP_ENV=production) は必ず HTTPS で URL 生成。
+        // nginx が SSL 終端しているため、TrustProxies と合わせて HTTPS を一貫保証。
+        if ($this->app->environment('production') || env('APP_FORCE_HTTPS', false)) {
+            URL::forceScheme('https');
+        }
+
         Table::configureUsing(function (Table $table): void {
             $table->defaultSort('updated_at', 'desc');
         });
