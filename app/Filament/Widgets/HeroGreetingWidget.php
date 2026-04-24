@@ -28,7 +28,8 @@ class HeroGreetingWidget extends Widget
 
     protected function getViewData(): array
     {
-        $now = Carbon::now()->timezone(config('app.timezone', 'Asia/Tokyo'));
+        // サーバー TZ が UTC でも、日本向けプロダクトとして表示は JST 固定
+        $now = Carbon::now('Asia/Tokyo');
         $hour = (int) $now->format('G');
 
         $greeting = match (true) {

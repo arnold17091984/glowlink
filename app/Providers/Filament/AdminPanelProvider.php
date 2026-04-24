@@ -83,8 +83,9 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
             ->widgets([
+                // Hero が KPI 4 セルを兼ねるので、従来の FriendStatsOverview は
+                // 重複になるため外す。必要なら個別サブページで復活させる。
                 \App\Filament\Widgets\HeroGreetingWidget::class,
-                \App\Filament\Widgets\FriendStatsOverview::class,
                 \App\Filament\Widgets\FriendGrowthChart::class,
                 \App\Filament\Widgets\UpcomingBroadcastsTable::class,
             ])

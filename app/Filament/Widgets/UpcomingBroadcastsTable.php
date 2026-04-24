@@ -12,7 +12,7 @@ use Filament\Widgets\TableWidget as BaseWidget;
  */
 class UpcomingBroadcastsTable extends BaseWidget
 {
-    protected static ?string $heading = '今後7日間の配信予定';
+    protected static ?string $heading = 'BROADCASTS // UPCOMING 7D';
 
     protected static ?int $sort = 3;
 

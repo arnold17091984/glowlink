@@ -1,0 +1,71 @@
+- generic [ref=e1]:
+  - main [ref=e4]:
+    - generic [ref=e5]:
+      - generic [ref=e7]:
+        - complementary [ref=e8]:
+          - generic [ref=e9]:
+            - generic [ref=e12]: glowlink
+            - generic [ref=e13]:
+              - generic [ref=e14]: SYS STATUS
+              - generic [ref=e17]: ONLINE
+          - generic [ref=e18]:
+            - generic [ref=e19]: LINE ENGAGEMENT CONSOLE
+            - heading "Operate every LINE friend at mission-grade precision._" [level=1] [ref=e20]
+            - paragraph [ref=e21]: Broadcast, coupon, referral — one cockpit, one dashboard. Built for brand operators who treat every message as a launch.
+          - generic [ref=e22]:
+            - generic [ref=e23]:
+              - generic [ref=e24]: LOCAL
+              - generic [ref=e25]: 14:20:58
+              - generic [ref=e26]: JST
+            - generic [ref=e27]:
+              - generic [ref=e28]: BUILD
+              - generic [ref=e29]: 1.0.0
+              - generic [ref=e30]: MAIN
+            - generic [ref=e31]:
+              - generic [ref=e32]: NODE
+              - generic [ref=e33]: NRT-01
+              - generic [ref=e34]: JP
+            - generic [ref=e35]:
+              - generic [ref=e36]: API
+              - generic [ref=e37]: LINE v2
+              - generic [ref=e38]: READY
+          - generic [ref=e40]: ┌──────────────────────────┐ │ > ACCESS REQUIRED │ │ > CREDENTIAL CHECK │ │ > AUTHENTICATING... │ │ > AWAITING OPERATOR │ └──────────────────────────┘
+        - generic [ref=e41]:
+          - generic [ref=e42]:
+            - generic [ref=e43]: SECURE ACCESS // SSH/HTTPS
+            - heading "Sign in_" [level=2] [ref=e44]
+            - paragraph [ref=e45]: Operator credentials required to enter the console.
+          - generic [ref=e46]:
+            - generic [ref=e47]:
+              - generic [ref=e50]:
+                - generic [ref=e53]:
+                  - text: Email address
+                  - superscript [ref=e54]: "*"
+                - textbox "Email address*" [active] [ref=e58]
+              - generic [ref=e61]:
+                - generic [ref=e62]:
+                  - generic [ref=e64]:
+                    - text: Password
+                    - superscript [ref=e65]: "*"
+                  - link "Forgot password?" [ref=e68] [cursor=pointer]:
+                    - /url: http://149.28.19.239/admin/password-reset/request
+                    - generic [ref=e69]: Forgot password?
+                - generic [ref=e71]:
+                  - textbox "Password*" [ref=e73]
+                  - button "Show password" [ref=e76] [cursor=pointer]:
+                    - generic [ref=e77]: Show password
+                    - img [ref=e78]
+              - generic [ref=e85]:
+                - checkbox "Remember me" [ref=e86]
+                - generic [ref=e87]: Remember me
+            - button "Sign in" [ref=e90] [cursor=pointer]:
+              - generic [ref=e91]: Sign in
+          - generic [ref=e94]: END-TO-END ENCRYPTED · SESSION 7200s
+      - generic:
+        - dialog
+      - generic:
+        - dialog
+      - generic:
+        - dialog
+  - generic:
+    - status

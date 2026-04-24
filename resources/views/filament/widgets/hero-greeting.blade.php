@@ -3,10 +3,12 @@
          x-data="{
              time: @js($isoTime),
              date: @js($isoDate),
+             fmtTime: new Intl.DateTimeFormat('en-GB', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit', timeZone: 'Asia/Tokyo' }),
+             fmtDate: new Intl.DateTimeFormat('en-CA', { year: 'numeric', month: '2-digit', day: '2-digit', timeZone: 'Asia/Tokyo' }),
              tick() {
                  const now = new Date();
-                 const pad = n => String(n).padStart(2, '0');
-                 this.time = `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+                 this.time = this.fmtTime.format(now);
+                 this.date = this.fmtDate.format(now);
              }
          }"
          x-init="setInterval(() => tick(), 1000)">
@@ -18,10 +20,10 @@
                 <span style="color:var(--gl-text-faint); margin-left:.5rem;">// {{ $shiftTag }}</span>
             </div>
             <div class="glow-hero-clock">
-                <span>{{ $isoDate }}</span>
+                <span x-text="date">{{ $isoDate }}</span>
                 <span style="color:var(--gl-text-faint); margin:0 .5rem;">·</span>
                 <span x-text="time">{{ $isoTime }}</span>
-                <span style="color:var(--gl-text-faint); margin-left:.5rem;">{{ $timezone }}</span>
+                <span style="color:var(--gl-text-faint); margin-left:.5rem;">JST</span>
             </div>
         </div>
 
