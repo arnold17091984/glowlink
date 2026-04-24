@@ -61,23 +61,19 @@ class AdminPanelProvider extends PanelProvider
             ->databaseNotifications()
             ->navigationGroups([
                 NavigationGroup::make('Friend Management')
-                    ->label('友だち管理')
-                    ->icon('heroicon-o-users'),
+                    ->label('友だち管理'),
                 NavigationGroup::make('Messaging')
-                    ->label('メッセージ')
-                    ->icon('heroicon-o-chat-bubble-oval-left-ellipsis'),
+                    ->label('メッセージ'),
                 NavigationGroup::make('Outreach')
-                    ->label('キャンペーン')
-                    ->icon('heroicon-o-building-storefront'),
+                    ->label('キャンペーン'),
                 NavigationGroup::make('Rich Media')
-                    ->label('リッチコンテンツ')
-                    ->icon('heroicon-o-photo'),
+                    ->label('リッチコンテンツ'),
+                // Filament はグループとアイテム両方にアイコンを設定すると例外を投げるため、
+                // アイコンはアイテム側に寄せる。グループはラベルのみ。
                 NavigationGroup::make('Utilities')
-                    ->label('設定・ユーティリティ')
-                    ->icon('heroicon-o-rectangle-group'),
+                    ->label('設定・ユーティリティ'),
                 NavigationGroup::make('チャネル接続')
-                    ->label('チャネル接続')
-                    ->icon('heroicon-o-link'),
+                    ->label('チャネル接続'),
             ])
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
