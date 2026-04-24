@@ -21,9 +21,6 @@ class MessageResource extends Resource
     protected static ?string $navigationGroup = 'メッセージ';
 
     protected static ?string $navigationLabel = 'メッセージ';
-
-    protected static ?string  = 'メッセージ';
-
     protected static ?int $navigationSort = 1;
 
     public ?string $type = null;

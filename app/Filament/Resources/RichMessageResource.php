@@ -26,9 +26,6 @@ class RichMessageResource extends Resource
     protected static ?string $navigationGroup = 'リッチコンテンツ';
 
     protected static ?string $navigationLabel = 'リッチメッセージ';
-
-    protected static ?string  = 'リッチメッセージ';
-
     public static function form(Form $form): Form
     {
         return $form

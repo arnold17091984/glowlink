@@ -21,9 +21,6 @@ class ActivityLogResource extends Resource
     protected static ?string $navigationGroup = '設定・ユーティリティ';
 
     protected static ?string $navigationLabel = 'アクティビティログ';
-
-    protected static ?string  = 'アクティビティログ';
-
     public static function form(Form $form): Form
     {
         return $form

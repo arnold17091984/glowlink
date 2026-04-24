@@ -17,9 +17,6 @@ class ReferralResource extends Resource
     protected static ?string $navigationGroup = 'キャンペーン';
 
     protected static ?string $navigationLabel = '紹介キャンペーン';
-
-    protected static ?string  = '紹介キャンペーン';
-
     public static function form(Form $form): Form
     {
         return $form

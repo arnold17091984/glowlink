@@ -28,9 +28,6 @@ class RichMenuSetResource extends Resource
     protected static ?string $navigationGroup = 'リッチコンテンツ';
 
     protected static ?string $navigationLabel = 'リッチメニュー';
-
-    protected static ?string  = 'リッチメニュー';
-
     public static function getRecordTitle(?Model $record): string|null|Htmlable
     {
         return $record->name;
