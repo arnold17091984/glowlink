@@ -11,8 +11,6 @@ use App\Models\Friend;
 use App\Models\LineChannel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
-use Spatie\RouteAttributes\Attributes\Middleware;
-use Spatie\RouteAttributes\Attributes\Post;
 
 class MessagesController extends Controller
 {
@@ -24,8 +22,13 @@ class MessagesController extends Controller
     ) {
     }
 
-    #[Post('messages', middleware: ['line.signature', 'throttle:line-webhook'])]
-    #[Post('messages/{channel}', middleware: ['line.signature', 'throttle:line-webhook'])]
+    /**
+     * 旧 Spatie #[Post('messages/...')] アトリビュートで登録すると、
+     * route-attributes config の `prefix=api` の影響で /api/messages/... に
+     * なってしまい LINE Developers Console の Webhook 検証が 404 になっていた。
+     * 今は routes/web.php で明示的に POST /messages と POST /messages/{channel}
+     * を登録している。
+     */
     public function __invoke(Request $request)
     {
         $data = $request->json()->all();
