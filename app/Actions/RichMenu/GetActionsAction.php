@@ -46,11 +46,15 @@ class GetActionsAction
                     ],
                 ];
             } elseif ($action === RichMenuActionEnum::LINK->value) {
+                $uri = $this->normaliseUri($reindexedData[$key]['link'] ?? null);
+                if ($uri === null) {
+                    continue; // 空 / 無効URI はそのセルをスキップ (LINE が 400 を返すのを防止)
+                }
                 $areas[] = [
                     'bounds' => $bound,
                     'action' => [
                         'type' => 'uri',
-                        'uri' => $reindexedData[$key]['link'] ?? 'https://example.com',
+                        'uri' => $uri,
                     ],
                 ];
             } elseif ($action === RichMenuActionEnum::AUTO_RESPONSE->value) {
@@ -88,6 +92,31 @@ class GetActionsAction
         }
 
         return $areas;
+    }
+
+    /**
+     * LINE Messaging API が受け付ける URI スキームに正規化する。
+     * 受け付けるのは http(s):// / line:// / tel: / mailto: のみ。
+     * 空・スペースのみ・既知スキーム以外は null を返してそのセルをスキップ。
+     */
+    private function normaliseUri(?string $raw): ?string
+    {
+        $uri = trim((string) $raw);
+        if ($uri === '') {
+            return null;
+        }
+
+        // ユーザーが "example.com/foo" のように書いたら https を補完
+        if (! preg_match('#^[a-z][a-z0-9+\-.]*:#i', $uri)) {
+            $uri = 'https://'.ltrim($uri, '/');
+        }
+
+        // LINE が認める scheme のみ通す
+        if (! preg_match('#^(https?|line|tel|mailto)://#i', $uri) && ! str_starts_with($uri, 'tel:') && ! str_starts_with($uri, 'mailto:')) {
+            return null;
+        }
+
+        return $uri;
     }
 
     /**

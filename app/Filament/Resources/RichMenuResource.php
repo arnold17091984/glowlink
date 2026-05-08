@@ -83,7 +83,17 @@ class RichMenuResource extends Resource
                                                 return RichMenu::orderBy('updated_at', 'desc')?->whereParentId($record->id)->pluck('name', 'id');
                                             }
                                         }),
-                                    Forms\Components\TextInput::make('link')->required()->hidden(fn (Get $get) => $get('action') !== RichMenuActionEnum::LINK->value),
+                                    Forms\Components\TextInput::make('link')
+                                        ->label('リンク URL')
+                                        ->required()
+                                        ->placeholder('https://example.com')
+                                        ->helperText('http:// または https:// から始まる URL。LINE は他スキームを拒否します。')
+                                        ->prefix('🔗')
+                                        ->regex('#^(https?://|line://|tel:|mailto:).+#i')
+                                        ->validationMessages([
+                                            'regex' => 'http:// または https:// で始まる URL を入力してください',
+                                        ])
+                                        ->hidden(fn (Get $get) => $get('action') !== RichMenuActionEnum::LINK->value),
                                     Forms\Components\Textarea::make('text')->required()->hidden(fn (Get $get) => $get('action') !== RichMenuActionEnum::MESSAGE->value),
                                 ])
                                 ->itemLabel(function ($uuid, $component) {
