@@ -103,19 +103,26 @@ class LineMessagingApiGateway implements LineGateway
             : (string) ($response['richMenuId'] ?? '');
     }
 
-    public function setRichMenuImage(string $richMenuId, string $imagePath, string $contentType = 'image/png'): void
+    public function setRichMenuImage(string $richMenuId, string $imagePath, ?string $contentType = null): void
     {
-        $stream = fopen($imagePath, 'r');
-        if ($stream === false) {
-            throw new \RuntimeException("Cannot read rich menu image: {$imagePath}");
-        }
-        try {
-            $this->blobApi->setRichMenuImage($richMenuId, $stream);
-        } finally {
-            if (is_resource($stream)) {
-                fclose($stream);
-            }
-        }
+        // LINE SDK v9 のデフォルト Content-Type は 'application/json' で、画像アップロード時に
+        // 415 Unsupported Media Type を返す。第 5 引数で必ず image/png か image/jpeg を渡す。
+        $contentType ??= $this->detectContentType($imagePath);
+
+        $body = new \SplFileObject($imagePath, 'r');
+        $this->blobApi->setRichMenuImage($richMenuId, $body, null, [], $contentType);
+    }
+
+    private function detectContentType(string $path): string
+    {
+        $ext = strtolower(pathinfo($path, PATHINFO_EXTENSION));
+        return match ($ext) {
+            'png' => 'image/png',
+            'jpg', 'jpeg' => 'image/jpeg',
+            default => function_exists('mime_content_type')
+                ? (mime_content_type($path) ?: 'image/png')
+                : 'image/png',
+        };
     }
 
     public function deleteRichMenu(string $richMenuId): void
