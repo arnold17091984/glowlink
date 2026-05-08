@@ -35,8 +35,12 @@ class LineGatewayManager
     }
 
     /**
-     * 旧仕様: line_channels テーブルに is_default = true があればそれを優先、
-     * 無ければ .env (config('line-bot.channel_access_token')) を使う。
+     * 解決順:
+     *   1. line_channels.is_default = true のチャネル
+     *   2. line_channels.is_active = true の最初のチャネル
+     *      (ユーザーが is_default を明示しなくても 1 アカウント運用なら自動で動く)
+     *   3. .env の LINE_BOT_CHANNEL_ACCESS_TOKEN (legacy 単一チャネル運用)
+     *   4. いずれも無い場合は明確な例外
      */
     public function default(): LineGateway
     {
@@ -45,9 +49,11 @@ class LineGatewayManager
             return $this->cache[$key];
         }
 
-        $defaultChannel = LineChannel::default();
-        if ($defaultChannel) {
-            return $this->cache[$key] = LineMessagingApiGateway::fromChannel($defaultChannel);
+        $channel = LineChannel::default()
+            ?? LineChannel::where('is_active', true)->orderBy('id')->first();
+
+        if ($channel) {
+            return $this->cache[$key] = LineMessagingApiGateway::fromChannel($channel);
         }
 
         $token = (string) config('line-bot.channel_access_token');

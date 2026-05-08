@@ -53,6 +53,10 @@ class LineChannel extends Model
             if (empty($channel->slug)) {
                 $channel->slug = Str::slug($channel->name, '-') ?: 'channel-'.Str::random(6);
             }
+            // 最初のチャネルなら自動で default に
+            if (! static::where('is_default', true)->exists()) {
+                $channel->is_default = true;
+            }
         });
 
         // is_default を ON にしたら他を OFF に
