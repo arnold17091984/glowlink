@@ -48,13 +48,37 @@ class GetActionsAction
             } elseif ($action === RichMenuActionEnum::LINK->value) {
                 $uri = $this->normaliseUri($reindexedData[$key]['link'] ?? null);
                 if ($uri === null) {
-                    continue; // 空 / 無効URI はそのセルをスキップ (LINE が 400 を返すのを防止)
+                    continue;
                 }
                 $areas[] = [
                     'bounds' => $bound,
                     'action' => [
                         'type' => 'uri',
                         'uri' => $uri,
+                    ],
+                ];
+            } elseif ($action === RichMenuActionEnum::PHONE->value) {
+                $tel = $this->normalisePhone($reindexedData[$key]['phone'] ?? null);
+                if ($tel === null) {
+                    continue;
+                }
+                $areas[] = [
+                    'bounds' => $bound,
+                    'action' => [
+                        'type' => 'uri',
+                        'uri' => 'tel:'.$tel,
+                    ],
+                ];
+            } elseif ($action === RichMenuActionEnum::MAIL->value) {
+                $email = trim((string) ($reindexedData[$key]['mail'] ?? ''));
+                if ($email === '' || ! filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                    continue;
+                }
+                $areas[] = [
+                    'bounds' => $bound,
+                    'action' => [
+                        'type' => 'uri',
+                        'uri' => 'mailto:'.$email,
                     ],
                 ];
             } elseif ($action === RichMenuActionEnum::AUTO_RESPONSE->value) {
@@ -117,6 +141,28 @@ class GetActionsAction
         }
 
         return $uri;
+    }
+
+    /**
+     * 電話番号を tel: URI 用に整形する。
+     * 国際表記 + は維持し、それ以外の数字以外は除去。
+     *   "03-1234-5678" -> "0312345678"
+     *   "+81 90 1234 5678" -> "+819012345678"
+     *   "abc" -> null
+     */
+    private function normalisePhone(?string $raw): ?string
+    {
+        $raw = trim((string) $raw);
+        if ($raw === '') {
+            return null;
+        }
+        $hasPlus = str_starts_with($raw, '+');
+        $digits = preg_replace('/\D+/', '', $raw) ?? '';
+        if (strlen($digits) < 6) {
+            return null;
+        }
+
+        return ($hasPlus ? '+' : '').$digits;
     }
 
     /**

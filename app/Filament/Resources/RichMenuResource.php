@@ -84,14 +84,38 @@ class RichMenuResource extends Resource
                                         ->label('リンク URL')
                                         ->required()
                                         ->placeholder('https://example.com')
-                                        ->helperText('http:// または https:// から始まる URL。LINE は他スキームを拒否します。')
+                                        ->helperText('http:// または https:// から始まる URL を入力してください。')
                                         ->prefix('🔗')
-                                        ->regex('#^(https?://|line://|tel:|mailto:).+#i')
+                                        ->regex('#^(https?://|line://).+#i')
                                         ->validationMessages([
                                             'regex' => 'http:// または https:// で始まる URL を入力してください',
                                         ])
                                         ->hidden(fn (Get $get) => $get('action') !== RichMenuActionEnum::LINK->value),
-                                    Forms\Components\Textarea::make('text')->required()->hidden(fn (Get $get) => $get('action') !== RichMenuActionEnum::MESSAGE->value),
+                                    Forms\Components\TextInput::make('phone')
+                                        ->label('電話番号')
+                                        ->required()
+                                        ->placeholder('03-1234-5678 / 0312345678 / +81312345678')
+                                        ->helperText('数字、ハイフン、+ のみ。タップで LINE が発信ダイヤラーを開きます。')
+                                        ->prefix('📞')
+                                        ->tel()
+                                        ->regex('#^[\+\d][\d\-\s\(\)]{7,}$#')
+                                        ->validationMessages([
+                                            'regex' => '電話番号は数字 / ハイフン / + で構成してください',
+                                        ])
+                                        ->hidden(fn (Get $get) => $get('action') !== RichMenuActionEnum::PHONE->value),
+                                    Forms\Components\TextInput::make('mail')
+                                        ->label('メールアドレス')
+                                        ->required()
+                                        ->placeholder('contact@example.com')
+                                        ->helperText('タップで LINE がメールアプリを開きます。')
+                                        ->prefix('✉️')
+                                        ->email()
+                                        ->hidden(fn (Get $get) => $get('action') !== RichMenuActionEnum::MAIL->value),
+                                    Forms\Components\Textarea::make('text')
+                                        ->label('送信するメッセージ')
+                                        ->required()
+                                        ->helperText('タップしたユーザーがあなたに送るメッセージとして表示されます。')
+                                        ->hidden(fn (Get $get) => $get('action') !== RichMenuActionEnum::MESSAGE->value),
                                 ])
                                 ->itemLabel(function ($uuid, $component) {
                                     $keys = array_keys($component->getState());
