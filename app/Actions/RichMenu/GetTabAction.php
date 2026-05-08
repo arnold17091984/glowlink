@@ -4,6 +4,12 @@ namespace App\Actions\RichMenu;
 
 use App\Models\TabBounds;
 
+/**
+ * Rich Menu のタブ切替領域 (richmenuswitch) を構築する。
+ *
+ * tab_bounds テーブルが空 (シード未投入) でも 500 にならないように、
+ * LINE 公式 2500x1686 座標系で計算した default bounds をフォールバックする。
+ */
 class GetTabAction
 {
     public function execute(string $tabNo, int $layoutNo, string $reference): array
@@ -12,7 +18,7 @@ class GetTabAction
         $tabNumbers = [];
 
         $areas[] = [
-            'bounds' => TabBounds::whereTabNo($tabNo)->whereLayoutNo($layoutNo)->first()->bounds,
+            'bounds' => $this->resolveBounds((int) $tabNo, $layoutNo),
             'action' => [
                 'type' => 'richmenuswitch',
                 'richMenuAliasId' => strtolower($reference.'-richmenu-alias-'.($tabNo)),
@@ -52,7 +58,7 @@ class GetTabAction
                     }
 
                     $areas[] = [
-                        'bounds' => TabBounds::whereTabNo($tabNumber)->whereLayoutNo($layoutNo)->first()->bounds,
+                        'bounds' => $this->resolveBounds($tabNumber, $layoutNo),
                         'action' => [
                             'type' => 'richmenuswitch',
                             'richMenuAliasId' => strtolower($reference.'-richmenu-alias-'.($tabNo + $nextTabNo)),
@@ -75,24 +81,22 @@ class GetTabAction
                     }
 
                     $areas[] = [
-                        'bounds' => TabBounds::whereTabNo($tabNumber)->whereLayoutNo($layoutNo)->first()->bounds,
+                        'bounds' => $this->resolveBounds($tabNumber, $layoutNo),
                         'action' => [
                             'type' => 'richmenuswitch',
                             'richMenuAliasId' => strtolower($reference.'-richmenu-alias-'.($tabNo + $nextTabNo)),
                             'data' => 'richmenu-changed-to-'.($tabNo + $nextTabNo),
                         ],
                     ];
-
                 }
 
                 return $areas;
-
             }
         }
 
         foreach ($tabNumbers as $tabNumber) {
             $areas[] = [
-                'bounds' => TabBounds::whereTabNo($tabNumber)->whereLayoutNo($layoutNo)->first()->bounds,
+                'bounds' => $this->resolveBounds($tabNumber, $layoutNo),
                 'action' => [
                     'type' => 'richmenuswitch',
                     'richMenuAliasId' => strtolower($reference.'-richmenu-alias-'.$tabNumber),
@@ -102,5 +106,42 @@ class GetTabAction
         }
 
         return $areas;
+    }
+
+    /**
+     * tab_bounds テーブルから取得 → 無ければ default を計算。
+     * LINE 公式 2500x1686 座標系。タブは画面上部 200px 高に配置。
+     */
+    private function resolveBounds(int $tabNo, int $layoutNo): array
+    {
+        $row = TabBounds::whereTabNo($tabNo)->whereLayoutNo($layoutNo)->first();
+        if ($row && is_array($row->bounds)) {
+            return $row->bounds;
+        }
+
+        return $this->defaultTabBounds($tabNo, $layoutNo);
+    }
+
+    private function defaultTabBounds(int $tabNo, int $layoutNo): array
+    {
+        $width = 2500;
+        $tabHeight = 200;
+
+        $tabsCount = match ($layoutNo) {
+            2 => 2,
+            3 => 3,
+            4 => 7,        // タブ多段 (LINE 標準は 4 までだがアプリは 7 想定)
+            default => 1,
+        };
+
+        $tabWidth = (int) round($width / max($tabsCount, 1));
+        $index = max($tabNo - 1, 0);
+
+        return [
+            'x' => $index * $tabWidth,
+            'y' => 0,
+            'width' => $tabWidth,
+            'height' => $tabHeight,
+        ];
     }
 }
