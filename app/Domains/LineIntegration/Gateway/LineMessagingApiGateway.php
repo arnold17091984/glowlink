@@ -113,17 +113,18 @@ class LineMessagingApiGateway implements LineGateway
 
     public function setRichMenuImage(string $richMenuId, string $imagePath, ?string $contentType = null): void
     {
-        // LINE SDK v9 のデフォルト Content-Type は 'application/json' で、画像アップロード時に
-        // 415 Unsupported Media Type を返す。第 5 引数で必ず image/png か image/jpeg を渡す。
-        $contentType ??= $this->detectContentType($imagePath);
+        $sourceContentType = $contentType ?? $this->detectContentType($imagePath);
 
-        // LINE の許容寸法に強制リサイズ。元画像のアスペクト比から
-        // フル (2500x1686) かコンパクト (2500x843) を選ぶ。
-        $resizedPath = $this->ensureValidRichMenuSize($imagePath, $contentType);
+        // ensureValidRichMenuSize() が常に JPEG を返すため、Content-Type は image/jpeg に上書き。
+        // ※ オリジナルが PNG でも、リサイズ後は JPEG なので必ず一致させる。
+        $resizedPath = $this->ensureValidRichMenuSize($imagePath, $sourceContentType);
+        $uploadContentType = ($resizedPath !== $imagePath || str_ends_with(strtolower($resizedPath), '.jpg'))
+            ? 'image/jpeg'
+            : $sourceContentType;
 
         try {
             $body = new \SplFileObject($resizedPath, 'r');
-            $this->blobApi->setRichMenuImage($richMenuId, $body, null, [], $contentType);
+            $this->blobApi->setRichMenuImage($richMenuId, $body, null, [], $uploadContentType);
         } finally {
             if ($resizedPath !== $imagePath && file_exists($resizedPath)) {
                 @unlink($resizedPath);
@@ -149,6 +150,10 @@ class LineMessagingApiGateway implements LineGateway
      *   コンパクト: 2500x843 / 1200x405
      * 入力アスペクト比に最も近い LINE サイズを選び、
      * **アスペクト比を保ったまま center-crop COVER** で生成する (歪ませない)。
+     *
+     * LINE のファイル上限 1MB を満たすため、最終出力は常に JPEG q=82 とし
+     * 白背景でフラット化する (透過 PNG の見た目を保ちつつサイズ削減)。
+     * 上位の setRichMenuImage は contentType を上書きで image/jpeg にする。
      */
     private function ensureValidRichMenuSize(string $imagePath, string $contentType): string
     {
@@ -215,16 +220,9 @@ class LineMessagingApiGateway implements LineGateway
 
         $dst = imagecreatetruecolor($targetW, $targetH);
 
-        // PNG 透過を保つ
-        if ($contentType === 'image/png') {
-            imagealphablending($dst, false);
-            imagesavealpha($dst, true);
-            $transparent = imagecolorallocatealpha($dst, 255, 255, 255, 127);
-            imagefilledrectangle($dst, 0, 0, $targetW, $targetH, $transparent);
-        } else {
-            $white = imagecolorallocate($dst, 255, 255, 255);
-            imagefilledrectangle($dst, 0, 0, $targetW, $targetH, $white);
-        }
+        // 透過は白背景でフラット化 (JPEG 出力で 1MB 以下を保証するため)
+        $white = imagecolorallocate($dst, 255, 255, 255);
+        imagefilledrectangle($dst, 0, 0, $targetW, $targetH, $white);
 
         imagecopyresampled(
             $dst, $src,
@@ -234,12 +232,15 @@ class LineMessagingApiGateway implements LineGateway
             $cropW, $cropH            // src w, h
         );
 
-        $ext = $contentType === 'image/jpeg' ? 'jpg' : 'png';
-        $tmp = tempnam(sys_get_temp_dir(), 'richmenu_').'.'.$ext;
-        if ($contentType === 'image/jpeg') {
-            imagejpeg($dst, $tmp, 92);
-        } else {
-            imagepng($dst, $tmp, 6);
+        // 常に JPEG で出力 (LINE の 1MB 制限を確実に満たす)
+        $tmp = tempnam(sys_get_temp_dir(), 'richmenu_').'.jpg';
+        $quality = 85;
+        imagejpeg($dst, $tmp, $quality);
+
+        // 万一 1MB を超えていたら品質を落として再保存 (1MB = 1048576 bytes)
+        while (filesize($tmp) > 1048000 && $quality > 50) {
+            $quality -= 10;
+            imagejpeg($dst, $tmp, $quality);
         }
 
         imagedestroy($src);
