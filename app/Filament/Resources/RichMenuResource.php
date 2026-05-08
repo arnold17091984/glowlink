@@ -50,14 +50,11 @@ class RichMenuResource extends Resource
                         Forms\Components\Toggle::make('selected')->label(trans('Initial state of menu')),
                         Forms\Components\Fieldset::make('Layout')->schema([
                             Forms\Components\Repeater::make('actions')
-                                ->disabled(function (Get $get, $record) {
-                                    // 編集時 (record あり) は常に有効
-                                    if ($record) {
-                                        return false;
-                                    }
-                                    // 新規作成時のみ画像必須
-                                    return empty($get('../image')) && empty($get('image'));
-                                })
+                                // 旧実装は画像未アップロード時に無効化していたが、
+                                // ユーザーが「アクションを先に設定したい」「画像とアクションを並行で詰めたい」
+                                // ケースに対応できなかった。画像は保存時 required で検証されるので
+                                // フォーム上の常時アクセスは許可してしまって OK。
+                                ->disabled(false)
                                 ->schema([
                                     Forms\Components\Select::make('action')
                                         ->required()
