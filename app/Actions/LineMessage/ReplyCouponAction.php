@@ -9,26 +9,29 @@ use App\DataTransferObjects\TalkData;
 use App\Enums\FlagEnum;
 use App\Models\Friend;
 use App\Models\User;
+use App\Domains\LineIntegration\Gateway\LineGatewayManager;
+use App\Models\LineChannel;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
-use LINE\Laravel\Facades\LINEMessagingApi;
 
 class ReplyCouponAction
 {
     public function __construct(
         protected BuildReplyMessageRequestAction $buildReplyMessageRequestAction,
         protected RedeemRewardAction $redeemRewardAction,
-        protected CreateTalkAction $createTalkAction
+        protected CreateTalkAction $createTalkAction,
+        protected LineGatewayManager $gateways,
     ) {
     }
 
-    public function execute(string $replyToken, $coupon, Friend $friend)
+    public function execute(string $replyToken, $coupon, Friend $friend, ?LineChannel $channel = null)
     {
         $text = $this->redeemRewardAction->execute($coupon->id, $friend);
         $reply = $this->buildReplyMessageRequestAction->execute($replyToken, $text, 'text', $friend);
-        $response = LINEMessagingApi::replyMessage($reply);
-
-        if (! $response) {
-            throw new ModelNotFoundException('Reply did not went through');
+        $gateway = $channel ? $this->gateways->forChannel($channel) : $this->gateways->default();
+        try {
+            $gateway->reply($reply);
+        } catch (\Throwable $e) {
+            throw new ModelNotFoundException('Reply did not went through: '.$e->getMessage());
         }
 
         $talk = $this->createTalkAction->execute(TalkData::fromArray([

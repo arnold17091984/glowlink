@@ -2,41 +2,59 @@
 
 namespace App\Actions\Friend;
 
+use App\Domains\LineIntegration\Gateway\LineGatewayManager;
 use App\Enums\FlagEnum;
 use App\Models\Friend;
+use App\Models\LineChannel;
 use App\Models\User;
 use Filament\Notifications\Notification;
-use LINE\Laravel\Facades\LINEMessagingApi;
 
 class StoreFriendAction
 {
-    public function execute($event)
+    public function __construct(protected LineGatewayManager $gateways)
+    {
+    }
+
+    public function execute($event, ?LineChannel $channel = null)
     {
         $userId = $event['source']['userId'];
-        $contentType = 'application/json';
-        $response = LINEMessagingApi::getProfile($userId, $contentType);
+
+        // Webhook を受けたチャネルを使ってプロフィールを取得 (per-channel)
+        $gateway = $channel
+            ? $this->gateways->forChannel($channel)
+            : $this->gateways->default();
+
+        $response = $gateway->getProfile($userId);
         $friend = Friend::whereUserId($userId)->first();
 
+        $payload = [
+            'user_id' => $response['userId'] ?? $userId,
+            'name' => $response['displayName'] ?? '(unknown)',
+            'profile_url' => $response['pictureUrl'] ?? null,
+            'mark' => FlagEnum::UNRESOLVED,
+            'line_channel_id' => $channel?->id,
+        ];
+
         if (! $friend) {
-            $friend = Friend::create([
-                'user_id' => $response['userId'],
-                'name' => $response['displayName'],
-                'profile_url' => $response['pictureUrl'],
-                'mark' => FlagEnum::UNRESOLVED,
-            ]);
+            $friend = Friend::create($payload);
 
             Notification::make()
                 ->icon('heroicon-o-envelope')
                 ->iconColor('success')
-                ->title('New Friend Notification')
-                ->body($friend->name.' is added to your friendlist.')
+                ->title('新しい友だち')
+                ->body($friend->name.' が友だち追加されました')
                 ->sendToDatabase(User::all());
-
         } else {
-            $friend->update([
-                'name' => $response['displayName'],
-                'profile_url' => $response['pictureUrl'],
-            ]);
+            $update = [
+                'name' => $payload['name'],
+                'profile_url' => $payload['profile_url'],
+            ];
+            if ($channel && empty($friend->line_channel_id)) {
+                $update['line_channel_id'] = $channel->id;
+            }
+            $friend->update($update);
         }
+
+        return $friend;
     }
 }

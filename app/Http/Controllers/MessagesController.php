@@ -41,15 +41,16 @@ class MessagesController extends Controller
         foreach ($data['events'] as $event) {
             try {
                 match ($event['type'] ?? null) {
-                    'message' => $this->handleMessage($event),
-                    'follow' => $this->handleFollow($event),
-                    'unfollow' => $this->handleUnfollow($event),
+                    'message' => $this->handleMessage($event, $channel),
+                    'follow' => $this->handleFollow($event, $channel),
+                    'unfollow' => $this->handleUnfollow($event, $channel),
                     default => null,
                 };
             } catch (\Throwable $e) {
                 // 個別イベントの失敗でWebhook全体を失敗させない (LINE側の再送ポリシーで二重配信されないように)
                 Log::warning('LINE webhook event handling failed', [
                     'event_type' => $event['type'] ?? 'unknown',
+                    'channel' => $channel?->slug,
                     'error' => $e->getMessage(),
                 ]);
                 report($e);
@@ -59,20 +60,20 @@ class MessagesController extends Controller
         return response()->json(['status' => 'ok']);
     }
 
-    private function handleMessage(array $event): void
+    private function handleMessage(array $event, ?LineChannel $channel = null): void
     {
-        $this->storeFriendAction->execute($event);
+        $this->storeFriendAction->execute($event, $channel);
         $this->storeChatAction->execute($event);
-        $this->autoResponseAction->execute($event);
+        $this->autoResponseAction->execute($event, $channel);
     }
 
-    private function handleFollow(array $event): void
+    private function handleFollow(array $event, ?LineChannel $channel = null): void
     {
-        $this->storeFriendAction->execute($event);
+        $this->storeFriendAction->execute($event, $channel);
         Friend::whereUserId($event['source']['userId'] ?? '')->update(['mark' => 'unresolved']);
     }
 
-    private function handleUnfollow(array $event): void
+    private function handleUnfollow(array $event, ?LineChannel $channel = null): void
     {
         // ブロック済みユーザーへの Push を止めるためマークを更新 (ENUM 変更は別マイグで扱う)
         $userId = $event['source']['userId'] ?? null;

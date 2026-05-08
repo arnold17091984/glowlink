@@ -3,33 +3,33 @@
 namespace App\Domains\LineIntegration;
 
 use App\Domains\LineIntegration\Gateway\LineGateway;
+use App\Domains\LineIntegration\Gateway\LineGatewayManager;
 use App\Domains\LineIntegration\Gateway\LineMessagingApiGateway;
 use Illuminate\Support\ServiceProvider;
-use LINE\Clients\MessagingApi\Api\MessagingApiApi;
 
 /**
- * LineGateway を DI コンテナに登録する。
+ * LineGatewayManager と LineGateway (デフォルト) を DI コンテナに登録する。
  *
- * config/app.php の providers 配列にこのクラスを追加することで、
- * `app(LineGateway::class)` からアプリ全体で統一インターフェース経由で LINE API を叩ける。
+ *   app(LineGatewayManager::class)  → 複数チャネル対応 (推奨)
+ *   app(LineGateway::class)         → デフォルトチャネル (legacy互換)
  *
- * テスト時は AppServiceProvider::boot() やテストケース内で
- *   $this->app->instance(LineGateway::class, new FakeLineGateway());
- * に差し替える。
+ * config/app.php providers 配列に登録済。
  */
 class LineIntegrationServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
+        $this->app->singleton(LineGatewayManager::class, function ($app) {
+            return new LineGatewayManager($app);
+        });
+
         $this->app->bind(LineGateway::class, function ($app) {
-            return new LineMessagingApiGateway(
-                $app->make(MessagingApiApi::class)
-            );
+            return $app->make(LineGatewayManager::class)->default();
         });
     }
 
     public function boot(): void
     {
-        // 将来的にここで LINE SDK の observer を張ったり Sentry breadcrumb 追加等を行う。
+        // 将来的に Sentry breadcrumb 等の横断観測を追加。
     }
 }

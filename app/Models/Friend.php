@@ -62,11 +62,17 @@ class Friend extends Model
         'reason',
         'points',
         'referral_count',
+        'line_channel_id',
     ];
 
     protected $casts = [
         'mark' => FlagEnum::class,
     ];
+
+    public function lineChannel(): BelongsTo
+    {
+        return $this->belongsTo(LineChannel::class);
+    }
 
     public function sendBy(): MorphMany
     {

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
@@ -42,7 +43,13 @@ class RichMenuSet extends Model
         'name',
         'is_active',
         'reference',
+        'line_channel_id',
     ];
+
+    public function lineChannel(): BelongsTo
+    {
+        return $this->belongsTo(LineChannel::class);
+    }
 
     public function richMenus(): HasMany
     {

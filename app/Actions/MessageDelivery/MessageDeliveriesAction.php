@@ -9,6 +9,7 @@ use App\Actions\LineMessagingRequest\RichVideo\BuildPushRichVideoRequestAction;
 use App\Actions\Media\UploadMediaAction;
 use App\Actions\Talk\CreateTalkAction;
 use App\DataTransferObjects\TalkData;
+use App\Domains\LineIntegration\Gateway\LineGatewayManager;
 use App\Enums\FlagEnum;
 use App\Enums\MessagingTypeEnum;
 use App\Models\Friend;
@@ -19,8 +20,8 @@ use App\Models\RichVideo;
 use App\Models\Talk;
 use App\Models\User;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Support\Facades\Log;
 use LINE\Clients\MessagingApi\Model\PushMessageRequest;
-use LINE\Laravel\Facades\LINEMessagingApi;
 
 class MessageDeliveriesAction
 {
@@ -34,6 +35,7 @@ class MessageDeliveriesAction
         protected BuildPushMessageRequestAction $buildPushMessageRequestAction,
         protected UploadMediaAction $uploadMediaAction,
         protected PushMessageRequest $push,
+        protected LineGatewayManager $gateways,
     ) {}
 
     public function execute(RichCard|RichVideo|RichMessage|Message $message, Friend $friend): Talk
@@ -97,10 +99,18 @@ class MessageDeliveriesAction
             $mediaItem->copy($talk, 'talk', env('MEDIA_DISK'));
         }
 
-        $response = LINEMessagingApi::pushMessage($this->push);
+        // Friend に line_channel_id があればそのチャネルから送る (multi-tenant)
+        $gateway = $this->gateways->forChannelId($friend->line_channel_id ?? null);
 
-        if (! $response) {
-            throw new ModelNotFoundException('message not go through');
+        try {
+            $gateway->push($this->push);
+        } catch (\Throwable $e) {
+            Log::error('MessageDeliveriesAction: push failed', [
+                'friend_id' => $friend->id,
+                'channel_id' => $friend->line_channel_id ?? null,
+                'error' => $e->getMessage(),
+            ]);
+            throw new ModelNotFoundException('message not go through: '.$e->getMessage());
         }
 
         return $talk;

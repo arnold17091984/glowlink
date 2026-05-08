@@ -2,36 +2,29 @@
 
 namespace App\Http\Controllers;
 
-use App\Actions\AutoResponse\AutoResponseAction;
-use App\Actions\Friend\StoreFriendAction;
-use App\Actions\LineMessage\GetMessageContentAction;
-use App\Actions\Talk\StoreChatAction;
-use LINE\Laravel\Facades\LINEMessagingApi;
-use Spatie\RouteAttributes\Attributes\Route;
+use App\Actions\RichMenu\DeleteAllRichMenuLineAction;
+use App\Models\LineChannel;
+use Illuminate\Http\Request;
+use Spatie\RouteAttributes\Attributes\Delete;
 
+/**
+ * 危険な「全 Rich Menu 削除」操作。
+ * クエリ ?channel={slug} で対象チャネルを限定可能。指定なしは default channel。
+ */
 class DeleteAllRichMenuController extends Controller
 {
-    // public function __construct(
-    //     protected StoreChatAction $storeChatAction,
-    //     protected StoreFriendAction $storeFriendAction,
-    //     protected AutoResponseAction $autoResponseAction,
-    //     protected GetMessageContentAction $getMessageContentAction
-    // ) {
-    // }
-
-    #[Route('DELETE', '/RichMenu')]
-    public function __invoke()
+    public function __construct(protected DeleteAllRichMenuLineAction $deleteAllRichMenuLineAction)
     {
-        $res = LINEMessagingApi::getRichMenuList();
+    }
 
-        foreach ($res->getRichmenus() as $richMenu) {
-            LINEMessagingApi::deleteRichMenu($richMenu->getRichMenuId());
-        }
+    #[Delete('RichMenu', middleware: ['auth'])]
+    public function __invoke(Request $request)
+    {
+        $slug = $request->query('channel');
+        $channel = $slug ? LineChannel::findBySlug($slug) : null;
 
-        $resRichMenuAlias = LINEMessagingApi::getRichMenuAliasList();
+        $this->deleteAllRichMenuLineAction->execute($channel);
 
-        foreach ($resRichMenuAlias->getAliases() as $richMenuAlias) {
-            LINEMessagingApi::deleteRichMenuAlias($richMenuAlias->getRichMenuAliasId());
-        }
+        return response()->json(['status' => 'ok']);
     }
 }

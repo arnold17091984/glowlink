@@ -10,25 +10,28 @@ use App\Models\Friend;
 use App\Models\MessageDelivery;
 use App\Models\Talk;
 use App\Models\User;
+use App\Domains\LineIntegration\Gateway\LineGatewayManager;
+use App\Models\LineChannel;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
-use LINE\Laravel\Facades\LINEMessagingApi;
 
 class ReplyRichCardAction
 {
     public function __construct(
         protected BuildReplyRichCardRequestAction $buildRichReplyCardRequestAction,
-        protected CreateTalkAction $createTalkAction
+        protected CreateTalkAction $createTalkAction,
+        protected LineGatewayManager $gateways,
     ) {
     }
 
-    public function execute(string $replyToken, MessageDelivery $messageDelivery, $friend): Talk
+    public function execute(string $replyToken, MessageDelivery $messageDelivery, $friend, ?LineChannel $channel = null): Talk
     {
         $reply = $this->buildRichReplyCardRequestAction->execute($replyToken, $messageDelivery->message, $friend);
 
-        $response = LINEMessagingApi::replyMessage($reply);
-
-        if (! $response) {
-            throw new ModelNotFoundException('Reply did not went through');
+        $gateway = $channel ? $this->gateways->forChannel($channel) : $this->gateways->default();
+        try {
+            $gateway->reply($reply);
+        } catch (\Throwable $e) {
+            throw new ModelNotFoundException('Reply did not went through: '.$e->getMessage());
         }
 
         $talk = $this->createTalkAction->execute(TalkData::fromArray([

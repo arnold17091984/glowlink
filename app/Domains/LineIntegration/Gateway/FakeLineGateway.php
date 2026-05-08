@@ -6,12 +6,13 @@ use LINE\Clients\MessagingApi\Model\BroadcastRequest;
 use LINE\Clients\MessagingApi\Model\MulticastRequest;
 use LINE\Clients\MessagingApi\Model\PushMessageRequest;
 use LINE\Clients\MessagingApi\Model\ReplyMessageRequest;
+use LINE\Clients\MessagingApi\Model\RichMenuAliasCreateRequest;
+use LINE\Clients\MessagingApi\Model\RichMenuRequest;
 
 /**
- * テスト時に LineGateway を差し替えるためのフェイク実装。
- *
- * 送信内容を配列に蓄積し、テストから assertSent() 等で検証できる。
- * 本格的な Consumer-Driven Contract テストをするなら PactPHP に移行可能。
+ * LineGateway インターフェイスを満たすフェイク実装。
+ * テスト時に Manager の forChannel() の返り値を差し替えるか、
+ * `app()->instance(LineGateway::class, new FakeLineGateway())` で利用。
  */
 class FakeLineGateway implements LineGateway
 {
@@ -23,8 +24,21 @@ class FakeLineGateway implements LineGateway
 
     public array $broadcasted = [];
 
+    public array $createdRichMenus = [];
+
+    public array $deletedRichMenus = [];
+
+    public array $createdAliases = [];
+
+    public array $deletedAliases = [];
+
+    public array $linkedRichMenus = [];
+
     public int $quotaConsumption = 0;
 
+    public string $nextRichMenuId = 'richmenu-fake-id';
+
+    // ---- Messaging ----------------------------------------------------------
     public function push(PushMessageRequest $request, ?string $retryKey = null): array
     {
         $this->pushed[] = ['request' => $request, 'retry_key' => $retryKey];
@@ -53,6 +67,7 @@ class FakeLineGateway implements LineGateway
         return ['status' => 200, 'headers' => [], 'body' => (object) ['sentMessages' => []]];
     }
 
+    // ---- Profile ------------------------------------------------------------
     public function getProfile(string $userId): array
     {
         return [
@@ -62,21 +77,84 @@ class FakeLineGateway implements LineGateway
         ];
     }
 
+    public function getMessageContent(string $messageId): string
+    {
+        return '/tmp/fake-line-content-'.$messageId;
+    }
+
+    // ---- Rich Menu ----------------------------------------------------------
+    public function createRichMenu(RichMenuRequest $request): string
+    {
+        $id = $this->nextRichMenuId;
+        $this->createdRichMenus[] = ['id' => $id, 'request' => $request];
+
+        return $id;
+    }
+
+    public function setRichMenuImage(string $richMenuId, string $imagePath, string $contentType = 'image/png'): void
+    {
+        // no-op
+    }
+
+    public function deleteRichMenu(string $richMenuId): void
+    {
+        $this->deletedRichMenus[] = $richMenuId;
+    }
+
+    public function setDefaultRichMenu(string $richMenuId): void
+    {
+        // no-op
+    }
+
+    public function getRichMenuList(): array
+    {
+        return [];
+    }
+
+    public function createRichMenuAlias(RichMenuAliasCreateRequest $request): void
+    {
+        $this->createdAliases[] = $request;
+    }
+
+    public function deleteRichMenuAlias(string $aliasId): void
+    {
+        $this->deletedAliases[] = $aliasId;
+    }
+
+    public function getRichMenuAliasList(): array
+    {
+        return [];
+    }
+
+    public function linkRichMenuToUser(string $userId, string $richMenuId): void
+    {
+        $this->linkedRichMenus[] = ['user' => $userId, 'menu' => $richMenuId];
+    }
+
+    public function linkRichMenuToUsers(array $userIds, string $richMenuId): void
+    {
+        foreach ($userIds as $u) {
+            $this->linkedRichMenus[] = ['user' => $u, 'menu' => $richMenuId];
+        }
+    }
+
+    public function unlinkRichMenuFromUser(string $userId): void
+    {
+        $this->linkedRichMenus[] = ['user' => $userId, 'menu' => null];
+    }
+
+    // ---- Quota --------------------------------------------------------------
     public function getMessageQuotaConsumption(): int
     {
         return $this->quotaConsumption;
     }
 
-    // ---- 検証ヘルパー ----
+    // ---- 検証ヘルパー -------------------------------------------------------
     public function assertPushed(callable $cb, int $expectedCount = 1): void
     {
         $matches = array_filter($this->pushed, fn ($p) => $cb($p['request'], $p['retry_key']));
         if (count($matches) !== $expectedCount) {
-            throw new \RuntimeException(sprintf(
-                'Expected %d pushed messages, got %d.',
-                $expectedCount,
-                count($matches)
-            ));
+            throw new \RuntimeException(sprintf('Expected %d pushed, got %d.', $expectedCount, count($matches)));
         }
     }
 
@@ -84,11 +162,7 @@ class FakeLineGateway implements LineGateway
     {
         $matches = array_filter($this->multicasted, fn ($p) => $cb($p['request'], $p['retry_key']));
         if (count($matches) !== $expectedCount) {
-            throw new \RuntimeException(sprintf(
-                'Expected %d multicasts, got %d.',
-                $expectedCount,
-                count($matches)
-            ));
+            throw new \RuntimeException(sprintf('Expected %d multicasts, got %d.', $expectedCount, count($matches)));
         }
     }
 }

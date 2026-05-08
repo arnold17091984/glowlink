@@ -6,13 +6,13 @@ use App\Actions\LineMessagingRequest\BuildPushMessageRequestAction;
 use App\Actions\Media\UploadMediaAction;
 use App\Actions\Talk\CreateTalkAction;
 use App\DataTransferObjects\TalkData;
+use App\Domains\LineIntegration\Gateway\LineGatewayManager;
 use App\Enums\FlagEnum;
 use App\Models\Friend;
 use App\Models\Talk;
 use App\Models\User;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use LINE\Clients\MessagingApi\Model\PushMessageRequest;
-use LINE\Laravel\Facades\LINEMessagingApi;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 
 class PushMessageAction
@@ -21,7 +21,8 @@ class PushMessageAction
         protected BuildPushMessageRequestAction $buildPushMessageRequestAction,
         protected CreateTalkAction $createTalkAction,
         protected UploadMediaAction $uploadMediaAction,
-        private PushMessageRequest $push
+        private PushMessageRequest $push,
+        protected LineGatewayManager $gateways,
     ) {
     }
 
@@ -60,10 +61,11 @@ class PushMessageAction
             'message' => $this->push->getMessages()[0],
         ]);
 
-        $response = LINEMessagingApi::pushMessage($this->push);
-
-        if (! $response) {
-            throw new ModelNotFoundException('message not go through');
+        $gateway = $this->gateways->forChannelId($friend->line_channel_id ?? null);
+        try {
+            $gateway->push($this->push);
+        } catch (\Throwable $e) {
+            throw new ModelNotFoundException('message not go through: '.$e->getMessage());
         }
 
         return $talk;

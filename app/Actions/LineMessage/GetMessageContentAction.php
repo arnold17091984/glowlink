@@ -2,14 +2,21 @@
 
 namespace App\Actions\LineMessage;
 
-use LINE\Laravel\Facades\LINEMessagingBlobApi;
+use App\Domains\LineIntegration\Gateway\LineGatewayManager;
+use App\Models\LineChannel;
 
 class GetMessageContentAction
 {
-    public function execute(int $messageId)
+    public function __construct(protected LineGatewayManager $gateways)
     {
-        $response = LINEMessagingBlobApi::getMessageContent($messageId);
+    }
 
-        return $response->getRealPath();
+    public function execute(int|string $messageId, ?LineChannel $channel = null): string
+    {
+        $gateway = $channel
+            ? $this->gateways->forChannel($channel)
+            : $this->gateways->default();
+
+        return $gateway->getMessageContent((string) $messageId);
     }
 }

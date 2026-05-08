@@ -11,29 +11,32 @@ use App\Models\Friend;
 use App\Models\Message;
 use App\Models\Talk;
 use App\Models\User;
+use App\Domains\LineIntegration\Gateway\LineGatewayManager;
+use App\Models\LineChannel;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
-use LINE\Laravel\Facades\LINEMessagingApi;
 
 class ReplyMessageAction
 {
     public function __construct(
         protected BuildReplyMessageRequestAction $buildReplyMessageRequestAction,
         protected UploadMediaAction $uploadMediaAction,
-        protected CreateTalkAction $createTalkAction
+        protected CreateTalkAction $createTalkAction,
+        protected LineGatewayManager $gateways,
     ) {
     }
 
-    public function execute($replyToken, Message $message, Friend $friend, $type): Talk
+    public function execute($replyToken, Message $message, Friend $friend, $type, ?LineChannel $channel = null): Talk
     {
         if ($type === 'text') {
             $reply = $this->buildReplyMessageRequestAction->execute($replyToken, $message['message'], $type, $friend);
         } else {
             $reply = $this->buildReplyMessageRequestAction->execute($replyToken, $message->getFirstMediaUrl('messages'), $type, $friend);
         }
-        $response = LINEMessagingApi::replyMessage($reply);
-
-        if (! $response) {
-            throw new ModelNotFoundException('Reply did not went through');
+        $gateway = $channel ? $this->gateways->forChannel($channel) : $this->gateways->default();
+        try {
+            $gateway->reply($reply);
+        } catch (\Throwable $e) {
+            throw new ModelNotFoundException('Reply did not went through: '.$e->getMessage());
         }
 
         $talk = $this->createTalkAction->execute(TalkData::fromArray([

@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Domains\LineIntegration\Gateway\LineGatewayManager;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -10,7 +11,6 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
 use LINE\Clients\MessagingApi\Model\MulticastRequest;
-use LINE\Laravel\Facades\LINEMessagingApi;
 use Sentry\Laravel\Integration;
 use Throwable;
 
@@ -19,7 +19,7 @@ use Throwable;
  *
  * - retryKey (UUID) を付与することで LINE 側が重複配信を抑止
  * - 429 / 5xx に対する指数バックオフ (Job 再試行)
- * - バッチ失敗時は Batch::catch() へ伝搬
+ * - LineGatewayManager 経由で channel-aware 配信に対応
  */
 class SendMulticastChunkJob implements ShouldQueue
 {
@@ -35,11 +35,12 @@ class SendMulticastChunkJob implements ShouldQueue
         public string $retryKey,
         public string $originalMessageType,
         public int $originalMessageId,
+        public ?int $lineChannelId = null,
     ) {
         $this->onQueue('broadcasts');
     }
 
-    public function handle(): void
+    public function handle(LineGatewayManager $gateways): void
     {
         if ($this->batch()?->cancelled()) {
             return;
@@ -55,28 +56,28 @@ class SendMulticastChunkJob implements ShouldQueue
             'notificationDisabled' => false,
         ]);
 
-        // LINE SDK v9: multicastWithHttpInfo($request, $retryKey) で [response, status, headers] 取得可
-        // retryKey の付与で一時障害時の再試行でも LINE 側が重複配信しない
+        $gateway = $gateways->forChannelId($this->lineChannelId);
+
         try {
-            if (method_exists(LINEMessagingApi::getFacadeRoot(), 'multicastWithHttpInfo')) {
-                [$body, $status, $headers] = LINEMessagingApi::multicastWithHttpInfo($request, $this->retryKey);
-                if ($status >= 500 || $status === 429) {
-                    throw new \RuntimeException("LINE multicast returned HTTP {$status}");
-                }
-            } else {
-                LINEMessagingApi::multicast($request, $this->retryKey);
+            $result = $gateway->multicast($request, $this->retryKey);
+            $status = (int) ($result['status'] ?? 0);
+            if ($status >= 500 || $status === 429) {
+                throw new \RuntimeException("LINE multicast returned HTTP {$status}");
             }
 
             Log::info('LINE multicast sent', [
                 'recipients' => count($this->userIds),
                 'message_type' => $this->originalMessageType,
                 'message_id' => $this->originalMessageId,
+                'channel_id' => $this->lineChannelId,
                 'retry_key' => $this->retryKey,
+                'status' => $status,
             ]);
         } catch (Throwable $e) {
             Log::warning('LINE multicast failed, will retry', [
                 'error' => $e->getMessage(),
                 'recipients' => count($this->userIds),
+                'channel_id' => $this->lineChannelId,
                 'retry_key' => $this->retryKey,
             ]);
             throw $e;
@@ -94,6 +95,7 @@ class SendMulticastChunkJob implements ShouldQueue
             'recipients' => count($this->userIds),
             'message_type' => $this->originalMessageType,
             'message_id' => $this->originalMessageId,
+            'channel_id' => $this->lineChannelId,
             'retry_key' => $this->retryKey,
             'error' => $exception->getMessage(),
         ]);

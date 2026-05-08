@@ -10,6 +10,7 @@ use App\Actions\LineMessage\ReplyRichVideoAction;
 use App\Enums\MessagingTypeEnum;
 use App\Models\AutoResponse;
 use App\Models\Friend;
+use App\Models\LineChannel;
 use App\Models\Message;
 use App\Models\RichCard;
 use App\Models\RichMessage;
@@ -25,7 +26,7 @@ class AutoResponseAction
         protected ReplyRichCardAction $replyRichCardAction
     ) {}
 
-    public function execute($event)
+    public function execute($event, ?LineChannel $channel = null)
     {
         $message = $event['message'];
 
@@ -45,32 +46,34 @@ class AutoResponseAction
                         $reply = null;
                         switch (true) {
                             case app($messageDelivery->message_type) instanceof Message:
-                                $reply = $this->replyMessageAction->execute($event['replyToken'], $messageDelivery->message, $friend, $messageDelivery->message['type']->value);
+                                $reply = $this->replyMessageAction->execute($event['replyToken'], $messageDelivery->message, $friend, $messageDelivery->message['type']->value, $channel);
                                 break;
                             case app($messageDelivery->message_type) instanceof RichMessage:
-                                $reply = $this->replyRichMessageAction->execute($event['replyToken'], $messageDelivery, $friend);
+                                $reply = $this->replyRichMessageAction->execute($event['replyToken'], $messageDelivery, $friend, $channel);
                                 break;
                             case app($messageDelivery->message_type) instanceof RichVideo:
-                                $reply = $this->replyRichVideoAction->execute($event['replyToken'], $messageDelivery, $friend);
+                                $reply = $this->replyRichVideoAction->execute($event['replyToken'], $messageDelivery, $friend, $channel);
                                 break;
                             case app($messageDelivery->message_type) instanceof RichCard:
-                                $reply = $this->replyRichCardAction->execute($event['replyToken'], $messageDelivery, $friend);
+                                $reply = $this->replyRichCardAction->execute($event['replyToken'], $messageDelivery, $friend, $channel);
                                 break;
                         }
 
                         return $reply;
                     }
                 } else {
+                    // 旧実装は $message を上書きしてループ2回目以降で type 判定が壊れていた。
+                    // 別変数で受けて部分一致判定する。
                     $keywords = explode(' ', $condition['keyword']);
-                    $message = explode(' ', $message['text']);
+                    $messageWords = explode(' ', $message['text']);
 
                     $keywords_lower = array_map('strtolower', $keywords);
-                    $message_lower = array_map('strtolower', $message);
+                    $message_lower = array_map('strtolower', $messageWords);
 
                     $commonWords = array_intersect($keywords_lower, $message_lower);
 
-                    if (count($commonWords) >= $condition['no_of_word']) {
-                        $reply = $this->replyMessageAction->execute($event['replyToken'], $messageDelivery->message, $friend, $messageDelivery->message['type']->value);
+                    if (count($commonWords) >= (int) $condition['no_of_word']) {
+                        $reply = $this->replyMessageAction->execute($event['replyToken'], $messageDelivery->message, $friend, $messageDelivery->message['type']->value, $channel);
 
                         return $reply;
                     }

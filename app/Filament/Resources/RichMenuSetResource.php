@@ -9,6 +9,7 @@ use App\Filament\Resources\RichMenuResource\Pages\EditRichMenu;
 use App\Filament\Resources\RichMenuResource\Pages\ListRichMenus;
 use App\Filament\Resources\RichMenuSetResource\Pages;
 use App\Jobs\DeleteRichMenuLineJob;
+use App\Models\LineChannel;
 use App\Models\RichMenuSet;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -39,7 +40,13 @@ class RichMenuSetResource extends Resource
             ->schema([
                 Forms\Components\Section::make([
                     Forms\Components\TextInput::make('name')->required()->unique(ignoreRecord: true),
-                    // Forms\Components\Toggle::make('is_active')->disabled()->label(trans('Active'))->required(),
+                    Forms\Components\Select::make('line_channel_id')
+                        ->label('LINE 公式アカウント')
+                        ->helperText('このリッチメニューを反映するチャネル。未選択時はデフォルトチャネルへ。')
+                        ->relationship('lineChannel', 'name')
+                        ->options(fn () => LineChannel::where('is_active', true)->pluck('name', 'id'))
+                        ->searchable()
+                        ->preload(),
                     Forms\Components\Section::make([
                         Forms\Components\Radio::make('layout_no')->default(1)->label('')
                             ->options(RichMenuTabLayoutEnum::class)
@@ -55,6 +62,10 @@ class RichMenuSetResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('reference')->searchable()->toggledHiddenByDefault(),
                 Tables\Columns\TextColumn::make('name')->searchable(),
+                Tables\Columns\TextColumn::make('lineChannel.name')
+                    ->label('LINE チャネル')
+                    ->badge()
+                    ->placeholder('default'),
                 Tables\Columns\SpatieMediaLibraryImageColumn::make('richMenus.image')
                     ->collection('richmenus')
                     ->sortable(false),
