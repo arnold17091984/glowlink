@@ -50,10 +50,13 @@ class RichMenuResource extends Resource
                         Forms\Components\Toggle::make('selected')->label(trans('Initial state of menu')),
                         Forms\Components\Fieldset::make('Layout')->schema([
                             Forms\Components\Repeater::make('actions')
-                                ->disabled(function (Get $get) {
-                                    if (! $get('image')) {
-                                        return true;
+                                ->disabled(function (Get $get, $record) {
+                                    // 編集時 (record あり) は常に有効
+                                    if ($record) {
+                                        return false;
                                     }
+                                    // 新規作成時のみ画像必須
+                                    return empty($get('../image')) && empty($get('image'));
                                 })
                                 ->schema([
                                     Forms\Components\Select::make('action')
@@ -105,17 +108,22 @@ class RichMenuResource extends Resource
                             ->image()
                             ->imageResizeMode('cover')
                             ->imageEditor()
-                            ->imageEditorViewportWidth('1280')
-                            ->imageEditorViewportHeight('863')
-                            ->imageCropAspectRatio('1280:863')
-                            ->imageResizeTargetWidth('1280')
-                            ->imageResizeTargetHeight('863')
+                            ->imageEditorViewportWidth('2500')
+                            ->imageEditorViewportHeight('1686')
+                            ->imageCropAspectRatio('2500:1686')
+                            ->imageResizeTargetWidth('2500')
+                            ->imageResizeTargetHeight('1686')
                             ->previewable(false)
-                            ->acceptedFileTypes(['image/jpeg'])
-                            ->disk(env('MEDIA_DISK'))
+                            ->acceptedFileTypes(['image/jpeg', 'image/png'])
+                            ->disk(config('media-library.disk_name', 'public'))
                             ->collection('richmenus')
                             ->required()
-                            ->hintIcon('heroicon-m-question-mark-circle', 'You can upload files up to 1MB. jpg, png images with an image size of 1280 x 863'),
+                            ->reactive()
+                            ->live()
+                            ->hintIcon(
+                                'heroicon-m-question-mark-circle',
+                                'JPG/PNG 1MB 以下、画像サイズは 2500x1686 (フル) または 2500x843 (コンパクト) を推奨'
+                            ),
                         RichMenuLayout::make('selected_layout')
                             ->default(1)
                             ->columnSpanFull()
