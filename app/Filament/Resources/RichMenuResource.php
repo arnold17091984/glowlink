@@ -163,8 +163,18 @@ class RichMenuResource extends Resource
 
                         if ($state['image'] && ! $record) {
                             $firstValue = reset($state['image']);
-                            $filePath = Storage::disk('s3')->putFile('temp', $firstValue->getRealPath());
-                            $image = Storage::disk('s3')->temporaryUrl($filePath, now()->addMinutes(15));
+                            // S3 ハードコードは AWS 未設定時に SDK 検証エラーで 500 を出す。
+                            // MEDIA_DISK (デフォルト public) を使い、cloud disk のときのみ
+                            // temporaryUrl、それ以外は Storage::url を返す。
+                            $diskName = config('media-library.disk_name', 'public');
+                            $disk = Storage::disk($diskName);
+                            $filePath = $disk->putFile('temp', $firstValue->getRealPath());
+                            try {
+                                $image = $disk->temporaryUrl($filePath, now()->addMinutes(15));
+                            } catch (\Throwable $e) {
+                                // local public 等は temporaryUrl 非対応 → 通常 URL
+                                $image = $disk->url($filePath);
+                            }
                         }
 
                         if ($record) {

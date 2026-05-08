@@ -185,8 +185,14 @@ class RichMessageResource extends Resource
                             $image = '';
                             if ($state['image'] && ! $record) {
                                 $firstValue = reset($state['image']);
-                                $filePath = Storage::disk('s3')->putFile('temp', $firstValue->getRealPath());
-                                $image = Storage::disk('s3')->temporaryUrl($filePath, now()->addMinutes(15));
+                                $diskName = config('media-library.disk_name', 'public');
+                                $disk = Storage::disk($diskName);
+                                $filePath = $disk->putFile('temp', $firstValue->getRealPath());
+                                try {
+                                    $image = $disk->temporaryUrl($filePath, now()->addMinutes(15));
+                                } catch (\Throwable $e) {
+                                    $image = $disk->url($filePath);
+                                }
                             }
 
                             if ($record) {
