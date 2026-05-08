@@ -30,6 +30,9 @@ class BuildRichMenuRequestAction
     {
         [$width, $height] = $this->resolveSize((int) $richMenu->width, (int) $richMenu->height);
 
+        $areas = $this->normaliseAreas($richMenu->areas ?? [], $width, $height);
+        $areas = $this->sanitiseActions($areas);
+
         return new RichMenuRequest([
             'size' => [
                 'width' => $width,
@@ -38,8 +41,51 @@ class BuildRichMenuRequestAction
             'selected' => (bool) $richMenu->selected,
             'name' => (string) ($richMenu->name ?? $richMenu->rich_menu_id ?? 'rich-menu-'.$richMenu->id),
             'chatBarText' => (string) ($richMenu->chatbar_text ?? 'メニュー'),
-            'areas' => $this->normaliseAreas($richMenu->areas ?? [], $width, $height),
+            'areas' => $areas,
         ]);
+    }
+
+    /**
+     * 保存済の areas[].action を LINE 仕様に合わせて最終チェック。
+     * - uri アクションでスキーム抜けの URL を https:// 補完
+     * - 受け付けスキーム外は無効として安全な fallback (https://example.com) に変換
+     *   (areas を完全に削るとレイアウトが崩れるためダミー URL にする)
+     */
+    private function sanitiseActions(array $areas): array
+    {
+        return array_map(function ($area) {
+            if (! is_array($area) || ! isset($area['action'])) {
+                return $area;
+            }
+            $action = $area['action'];
+            $type = $action['type'] ?? null;
+
+            if ($type === 'uri' && isset($action['uri'])) {
+                $area['action']['uri'] = $this->normaliseUriString((string) $action['uri']);
+            }
+
+            return $area;
+        }, $areas);
+    }
+
+    private function normaliseUriString(string $raw): string
+    {
+        $uri = trim($raw);
+        if ($uri === '') {
+            return 'https://example.com';
+        }
+
+        // スキーム無しなら https:// を補う
+        if (! preg_match('#^[a-z][a-z0-9+\-.]*:#i', $uri)) {
+            $uri = 'https://'.ltrim($uri, '/');
+        }
+
+        // LINE 受付スキームのみ許可
+        if (! preg_match('#^(https?|line)://#i', $uri) && ! str_starts_with(strtolower($uri), 'tel:') && ! str_starts_with(strtolower($uri), 'mailto:')) {
+            return 'https://example.com';
+        }
+
+        return $uri;
     }
 
     /**
