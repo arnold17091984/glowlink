@@ -28,7 +28,11 @@ class BuildRichMenuRequestAction
 
     public function execute(RichMenu $richMenu): RichMenuRequest
     {
-        [$width, $height] = $this->resolveSize((int) $richMenu->width, (int) $richMenu->height);
+        // size は: 1) 添付画像のアスペクト比 (最も信頼できる情報源)
+        //         2) なければ richMenu->width/height (legacy)
+        //         3) それでもなければ full サイズ
+        [$width, $height] = $this->resolveSizeFromImage($richMenu)
+            ?? $this->resolveSize((int) $richMenu->width, (int) $richMenu->height);
 
         $areas = $this->normaliseAreas($richMenu->areas ?? [], $width, $height);
         $areas = $this->sanitiseActions($areas);
@@ -43,6 +47,53 @@ class BuildRichMenuRequestAction
             'chatBarText' => (string) ($richMenu->chatbar_text ?? 'メニュー'),
             'areas' => $areas,
         ]);
+    }
+
+    /**
+     * 添付画像から実アスペクト比を読み取り、最も近い LINE 公式サイズを返す。
+     */
+    private function resolveSizeFromImage(RichMenu $richMenu): ?array
+    {
+        try {
+            $media = $richMenu->getFirstMedia('richmenus');
+            if (! $media) {
+                return null;
+            }
+            $path = $media->getPath();
+            if (! $path || ! is_file($path)) {
+                return null;
+            }
+            $info = @getimagesize($path);
+            if (! $info) {
+                return null;
+            }
+            [$srcW, $srcH] = $info;
+            if ($srcW <= 0 || $srcH <= 0) {
+                return null;
+            }
+            $srcRatio = $srcW / $srcH;
+
+            // (width, height, ratio)
+            $candidates = [
+                [2500, 1686, 2500 / 1686],
+                [2500, 843,  2500 / 843],
+                [1200, 810,  1200 / 810],
+                [1200, 405,  1200 / 405],
+            ];
+            $best = $candidates[0];
+            $bestDiff = abs($srcRatio - $best[2]);
+            foreach ($candidates as $c) {
+                $d = abs($srcRatio - $c[2]);
+                if ($d < $bestDiff) {
+                    $best = $c;
+                    $bestDiff = $d;
+                }
+            }
+
+            return [$best[0], $best[1]];
+        } catch (\Throwable) {
+            return null;
+        }
     }
 
     /**
@@ -89,7 +140,13 @@ class BuildRichMenuRequestAction
     }
 
     /**
-     * 入力寸法を LINE 仕様に丸め込む。fall-through default は 2500 x 1686。
+     * 入力寸法を LINE 仕様に丸め込む。
+     *
+     * 旧実装は "height < 1000 ならコンパクト" としていたが、レガシー DB の
+     * デフォルト 1280x863 がコンパクト判定されてしまい、結果として
+     * 「フルサイズの画像を半分の高さに潰す」事故を起こしていた。
+     * 今は「width:height のアスペクト比が 2:1 (= 2.0) を超えるとき
+     * のみコンパクト」と判定する。
      *
      * @return array{0:int,1:int}
      */
@@ -101,10 +158,15 @@ class BuildRichMenuRequestAction
             }
         }
 
-        // compact 風 (height < 1000) ならコンパクト、そうでなければフル
-        return $height > 0 && $height < 1000
-            ? [2500, 843]
-            : [2500, 1686];
+        if ($width > 0 && $height > 0) {
+            $ratio = $width / $height;
+            // 2.0 を境にコンパクト/フルを判定。
+            //   フル (2500/1686 = 1.483 / 1200/810 = 1.481) は ratio < 2
+            //   コンパクト (2500/843 = 2.965 / 1200/405 = 2.963) は ratio > 2
+            return $ratio > 2.0 ? [2500, 843] : [2500, 1686];
+        }
+
+        return [2500, 1686];
     }
 
     /**
