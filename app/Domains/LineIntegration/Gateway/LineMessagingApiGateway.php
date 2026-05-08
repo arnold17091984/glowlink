@@ -11,7 +11,7 @@ use LINE\Clients\MessagingApi\Model\BroadcastRequest;
 use LINE\Clients\MessagingApi\Model\MulticastRequest;
 use LINE\Clients\MessagingApi\Model\PushMessageRequest;
 use LINE\Clients\MessagingApi\Model\ReplyMessageRequest;
-use LINE\Clients\MessagingApi\Model\RichMenuAliasCreateRequest;
+use LINE\Clients\MessagingApi\Model\CreateRichMenuAliasRequest;
 use LINE\Clients\MessagingApi\Model\RichMenuRequest;
 
 /**
@@ -219,7 +219,7 @@ class LineMessagingApiGateway implements LineGateway
         return is_array($list) ? $list : [];
     }
 
-    public function createRichMenuAlias(RichMenuAliasCreateRequest $request): void
+    public function createRichMenuAlias(CreateRichMenuAliasRequest $request): void
     {
         try {
             $this->api->createRichMenuAlias($request);

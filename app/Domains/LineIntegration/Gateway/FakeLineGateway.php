@@ -6,7 +6,7 @@ use LINE\Clients\MessagingApi\Model\BroadcastRequest;
 use LINE\Clients\MessagingApi\Model\MulticastRequest;
 use LINE\Clients\MessagingApi\Model\PushMessageRequest;
 use LINE\Clients\MessagingApi\Model\ReplyMessageRequest;
-use LINE\Clients\MessagingApi\Model\RichMenuAliasCreateRequest;
+use LINE\Clients\MessagingApi\Model\CreateRichMenuAliasRequest;
 use LINE\Clients\MessagingApi\Model\RichMenuRequest;
 
 /**
@@ -111,7 +111,7 @@ class FakeLineGateway implements LineGateway
         return [];
     }
 
-    public function createRichMenuAlias(RichMenuAliasCreateRequest $request): void
+    public function createRichMenuAlias(CreateRichMenuAliasRequest $request): void
     {
         $this->createdAliases[] = $request;
     }
