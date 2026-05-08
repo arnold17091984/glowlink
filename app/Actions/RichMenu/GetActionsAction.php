@@ -81,6 +81,32 @@ class GetActionsAction
                         'uri' => 'mailto:'.$email,
                     ],
                 ];
+            } elseif ($action === RichMenuActionEnum::SHARE_OA->value) {
+                // RichMenuSet 経由でチャネルを解決し basic_id を取得して
+                // https://line.me/R/nv/recommendOA/{basicId} を生成
+                $basicId = $this->resolveOaBasicId($parent);
+                if (! $basicId) {
+                    continue;
+                }
+                $areas[] = [
+                    'bounds' => $bound,
+                    'action' => [
+                        'type' => 'uri',
+                        'uri' => 'https://line.me/R/nv/recommendOA/'.ltrim($basicId, '@'),
+                    ],
+                ];
+            } elseif ($action === RichMenuActionEnum::SHARE_MESSAGE->value) {
+                $text = trim((string) ($reindexedData[$key]['share_text'] ?? ''));
+                if ($text === '') {
+                    continue;
+                }
+                $areas[] = [
+                    'bounds' => $bound,
+                    'action' => [
+                        'type' => 'uri',
+                        'uri' => 'https://line.me/R/share?text='.rawurlencode($text),
+                    ],
+                ];
             } elseif ($action === RichMenuActionEnum::AUTO_RESPONSE->value) {
                 $autoResponse = AutoResponse::find($reindexedData[$key]['auto_response_id'] ?? null);
                 $areas[] = [
@@ -141,6 +167,31 @@ class GetActionsAction
         }
 
         return $uri;
+    }
+
+    /**
+     * SHARE_OA 用に basic_id を解決する。
+     * 優先順:
+     *   1. RichMenu の RichMenuSet に紐づく LineChannel.basic_id
+     *   2. デフォルトチャネル (LineChannel::default()) の basic_id
+     *   3. (未来) .env の LINE_BOT_BASIC_ID
+     */
+    private function resolveOaBasicId(?\App\Models\RichMenu $parent = null): ?string
+    {
+        // 親 RichMenu が分かっている場合はそこから RichMenuSet を辿る
+        if ($parent && $parent->richMenuSet && $parent->richMenuSet->lineChannel) {
+            $b = trim((string) $parent->richMenuSet->lineChannel->basic_id);
+            if ($b !== '') {
+                return $b;
+            }
+        }
+
+        $default = \App\Models\LineChannel::default() ?? \App\Models\LineChannel::where('is_active', true)->first();
+        if ($default && $default->basic_id) {
+            return trim((string) $default->basic_id);
+        }
+
+        return null;
     }
 
     /**

@@ -116,6 +116,17 @@ class RichMenuResource extends Resource
                                         ->required()
                                         ->helperText('タップしたユーザーがあなたに送るメッセージとして表示されます。')
                                         ->hidden(fn (Get $get) => $get('action') !== RichMenuActionEnum::MESSAGE->value),
+                                    Forms\Components\Placeholder::make('share_oa_helper')
+                                        ->label('友だちに公式アカウントを紹介')
+                                        ->content('このセルをタップすると、ユーザーの LINE 友だち選択画面が開き、この公式アカウントを紹介できます。設定不要で動きます（紐づけているチャネルのベーシック ID を自動利用）。')
+                                        ->hidden(fn (Get $get) => $get('action') !== RichMenuActionEnum::SHARE_OA->value),
+                                    Forms\Components\Textarea::make('share_text')
+                                        ->label('共有メッセージ本文')
+                                        ->required()
+                                        ->placeholder('ベットランクツアーズで賢く旅しよう！特別プランをチェック → https://glowlink.ink')
+                                        ->helperText('タップしたユーザーが LINE 友だちに送るメッセージ。URL も含められます。')
+                                        ->maxLength(300)
+                                        ->hidden(fn (Get $get) => $get('action') !== RichMenuActionEnum::SHARE_MESSAGE->value),
                                 ])
                                 ->itemLabel(function ($uuid, $component) {
                                     $keys = array_keys($component->getState());
