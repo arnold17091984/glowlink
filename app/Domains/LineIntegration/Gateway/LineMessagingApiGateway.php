@@ -143,10 +143,16 @@ class LineMessagingApiGateway implements LineGateway
         };
     }
 
+    /**
+     * LINE が認める 4 サイズに合わせる。
+     *   フル:    2500x1686 / 1200x810
+     *   コンパクト: 2500x843 / 1200x405
+     * 入力アスペクト比に最も近い LINE サイズを選び、
+     * **アスペクト比を保ったまま center-crop COVER** で生成する (歪ませない)。
+     */
     private function ensureValidRichMenuSize(string $imagePath, string $contentType): string
     {
         if (! function_exists('imagecreatefromstring')) {
-            // GD 未導入なら諦めてそのまま送信 (LINE が 400 を返す可能性あり)
             return $imagePath;
         }
 
@@ -155,16 +161,51 @@ class LineMessagingApiGateway implements LineGateway
             return $imagePath;
         }
         [$srcW, $srcH] = $info;
+        if ($srcW <= 0 || $srcH <= 0) {
+            return $imagePath;
+        }
 
-        // アスペクト比から full / compact を判定
-        $ratio = $srcW > 0 ? $srcH / $srcW : 1;
-        $isCompact = $ratio < 0.55;  // 1686/2500 = 0.674, 843/2500 = 0.337 → 中間 0.55 で分岐
+        $srcRatio = $srcW / $srcH;
 
-        $targetW = 2500;
-        $targetH = $isCompact ? 843 : 1686;
+        // 候補サイズ: アスペクト比だけが一致すれば LINE は OK
+        $candidates = [
+            [2500, 1686, 2500 / 1686],
+            [2500, 843,  2500 / 843],
+            [1200, 810,  1200 / 810],
+            [1200, 405,  1200 / 405],
+        ];
 
+        // 最も近いアスペクト比を選ぶ
+        $best = $candidates[0];
+        $bestDiff = abs($srcRatio - $best[2]);
+        foreach ($candidates as $c) {
+            $d = abs($srcRatio - $c[2]);
+            if ($d < $bestDiff) {
+                $best = $c;
+                $bestDiff = $d;
+            }
+        }
+        [$targetW, $targetH] = [$best[0], $best[1]];
+        $targetRatio = $best[2];
+
+        // 既に正解サイズなら何もしない
         if ($srcW === $targetW && $srcH === $targetH) {
-            return $imagePath;  // 既に LINE 仕様
+            return $imagePath;
+        }
+
+        // COVER 計算: source を target アスペクト比に揃えるため source 側を crop する
+        if ($srcRatio > $targetRatio) {
+            // source が target より横長 → 左右を切る
+            $cropH = $srcH;
+            $cropW = (int) round($srcH * $targetRatio);
+            $cropX = (int) round(($srcW - $cropW) / 2);
+            $cropY = 0;
+        } else {
+            // source が target より縦長 → 上下を切る
+            $cropW = $srcW;
+            $cropH = (int) round($srcW / $targetRatio);
+            $cropX = 0;
+            $cropY = (int) round(($srcH - $cropH) / 2);
         }
 
         $src = @imagecreatefromstring(file_get_contents($imagePath) ?: '');
@@ -174,15 +215,29 @@ class LineMessagingApiGateway implements LineGateway
 
         $dst = imagecreatetruecolor($targetW, $targetH);
 
-        // PNG / JPEG どちらでも背景を白で塗ってからリサイズ (透過 PNG の黒背景化を防ぐ)
-        $white = imagecolorallocate($dst, 255, 255, 255);
-        imagefilledrectangle($dst, 0, 0, $targetW, $targetH, $white);
+        // PNG 透過を保つ
+        if ($contentType === 'image/png') {
+            imagealphablending($dst, false);
+            imagesavealpha($dst, true);
+            $transparent = imagecolorallocatealpha($dst, 255, 255, 255, 127);
+            imagefilledrectangle($dst, 0, 0, $targetW, $targetH, $transparent);
+        } else {
+            $white = imagecolorallocate($dst, 255, 255, 255);
+            imagefilledrectangle($dst, 0, 0, $targetW, $targetH, $white);
+        }
 
-        imagecopyresampled($dst, $src, 0, 0, 0, 0, $targetW, $targetH, $srcW, $srcH);
+        imagecopyresampled(
+            $dst, $src,
+            0, 0,                    // dst x, y
+            $cropX, $cropY,           // src x, y
+            $targetW, $targetH,       // dst w, h
+            $cropW, $cropH            // src w, h
+        );
 
-        $tmp = tempnam(sys_get_temp_dir(), 'richmenu_').'.'.($contentType === 'image/jpeg' ? 'jpg' : 'png');
+        $ext = $contentType === 'image/jpeg' ? 'jpg' : 'png';
+        $tmp = tempnam(sys_get_temp_dir(), 'richmenu_').'.'.$ext;
         if ($contentType === 'image/jpeg') {
-            imagejpeg($dst, $tmp, 90);
+            imagejpeg($dst, $tmp, 92);
         } else {
             imagepng($dst, $tmp, 6);
         }
