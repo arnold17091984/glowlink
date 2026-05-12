@@ -7,7 +7,7 @@ use App\Jobs\CreateRichMenuLineJob;
 use App\Jobs\DeleteRichMenuLineJob;
 use App\Models\RichMenu;
 use App\Models\RichMenuSet;
-use Illuminate\Bus\Bus;
+use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Log;
 
 class EditRichMenuAction
