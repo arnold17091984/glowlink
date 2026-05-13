@@ -138,7 +138,11 @@ class RichMenuResource extends Resource
                                 ->hiddenLabel()
                                 ->deletable(false)
                                 ->addable(false)
-                                ->reorderableWithDragAndDrop(false)
+                                // Drag-and-drop reorder so operators can move cells around the layout.
+                                // Bound to cell index in GetActionsAction (areas[i] <- actions[i]),
+                                // so reordering directly changes which cell each action occupies.
+                                ->reorderable()
+                                ->reorderableWithDragAndDrop()
                                 ->collapsible()
                                 ->columnSpanFull(),
                         ]),
