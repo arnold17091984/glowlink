@@ -34,7 +34,11 @@ class RichMenuData
             tab_no: (string) $data['tab_no'],
             selected: $data['selected'],
             selected_layout: (int) $data['selected_layout'],
-            actions: $data['actions'],
+            // Re-index Filament Repeater's UUID-keyed entries to a sequential list.
+            // MySQL JSON columns reorder object keys lexicographically on storage,
+            // which scrambles the user's intended cell order on reload. JSON arrays
+            // preserve order, so cast to a list before persisting.
+            actions: array_values($data['actions']),
             image: $data['image'],
             width: 1280,
             height: 863,
