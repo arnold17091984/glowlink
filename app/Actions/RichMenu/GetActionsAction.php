@@ -82,17 +82,20 @@ class GetActionsAction
                     ],
                 ];
             } elseif ($action === RichMenuActionEnum::SHARE_OA->value) {
-                // RichMenuSet 経由でチャネルを解決し basic_id を取得して
-                // https://line.me/R/nv/recommendOA/{basicId} を生成
+                // RichMenuSet -> LineChannel.basic_id を解決し、
+                // LINE 公式の OA 紹介 URI へ変換する。LINE は basic_id に
+                // 必ず "@" 接頭辞が付いた形を要求するため、normalize して付け直す。
+                // 付けないと LINE アプリ側で「URL を確認してください」エラーになる。
                 $basicId = $this->resolveOaBasicId($parent);
                 if (! $basicId) {
                     continue;
                 }
+                $basicId = '@'.ltrim($basicId, '@');
                 $areas[] = [
                     'bounds' => $bound,
                     'action' => [
                         'type' => 'uri',
-                        'uri' => 'https://line.me/R/nv/recommendOA/'.ltrim($basicId, '@'),
+                        'uri' => 'https://line.me/R/nv/recommendOA/'.$basicId,
                     ],
                 ];
             } elseif ($action === RichMenuActionEnum::SHARE_MESSAGE->value) {
